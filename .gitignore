@@ -1,0 +1,88 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Distribution / packaging
+.Python
+build/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+share/python-wheels/
+*.egg-info/
+*.egg
+pip-wheel-metadata/
+
+# Unit test / coverage reports
+.coverage
+.coverage.*
+htmlcov/
+.pytest_cache/
+
+# Type checkers / linters
+.mypy_cache/
+.ruff_cache/
+.pyre/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Environment variables and local secrets
+.env
+.env.*
+!.env.example
+
+# IDE / editors
+.vscode/
+.idea/
+*.code-workspace
+
+# OS files
+Thumbs.db
+.DS_Store
+
+# Logs
+*.log
+logs/
+
+# Machine learning artifacts
+checkpoints/
+checkpoint/
+models/
+weights/
+*.ckpt
+*.pt
+*.pth
+*.onnx
+runs/
+wandb/
+mlruns/
+tensorboard/
+lightning_logs/
+
+# Cache and temporary files
+.cache/
+cache/
+tmp/
+temp/
+*.tmp
+
+# Local project outputs and generated data
+data/raw/
+data/processed/
+outputs/
+dataset_nlp/
+experiments/
+page_xml/
