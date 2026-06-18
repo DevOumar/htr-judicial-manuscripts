@@ -78,6 +78,7 @@ Validation:
 - Tests include NLP tokenization and lemmatization checks.
 - `docs/NLP_REQUIREMENTS_AUDIT.md` maps the NLP PDF requirements to repository artifacts.
 - `docs/POST_HTR_CORRECTION.md` documents lexicon correction and before/after impact evaluation.
+- `docs/ADVANCED_NLP_PRESENTATION.md` documents rule-based BIO NER, POS, relations, graph export and TEI-XML.
 - `outputs/judicial_gt_evaluation/final_judicial_evaluation_report.md` summarizes final CER/WER and bootstrap intervals.
 
 ## PAGE XML Validation

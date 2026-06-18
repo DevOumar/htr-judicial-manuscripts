@@ -130,6 +130,7 @@ python src/nlp/eda.py --input dataset_nlp/transcriptions.json --output-dir outpu
 python src/nlp/create_splits.py --input dataset_nlp/transcriptions.json --output-dir dataset_nlp/splits --hash-output artifacts/nlp_dataset_hashes.json --seed 42
 python src/nlp/enrich_dataset.py --input dataset_nlp/transcriptions.json --output-dir dataset_nlp/nlp
 python src/nlp/correction.py --input dataset_nlp/transcriptions.json --lexicon data/lexicons/judicial_lexicon.txt --gt data/judicial_gt/judicial_gt_annotation_with_draft.csv --output-dir outputs/nlp_correction
+python src/nlp/advanced_pipeline.py --input dataset_nlp/transcriptions.json --lexicon data/lexicons/judicial_lexicon.txt --output-dir dataset_nlp/advanced
 python src/evaluation/validate_data_contract.py --input-dir dataset_nlp/nlp/transcriptions_enriched.json --schema schemas/nlp_schema.json
 ```
 
@@ -149,6 +150,11 @@ Livrables NLP:
 - `outputs/nlp_correction/correction_suggestions.csv`
 - `outputs/nlp_correction/vocabulary_comparison.md`
 - `outputs/nlp_correction/correction_impact_report.md`
+- `dataset_nlp/advanced/advanced_annotations.json`
+- `dataset_nlp/advanced/entity_graph.json`
+- `dataset_nlp/advanced/entity_graph.graphml`
+- `dataset_nlp/advanced/transcription_tei.xml`
+- `dataset_nlp/advanced/advanced_nlp_report.md`
 
 Derniere execution locale:
 
@@ -163,6 +169,7 @@ Derniere execution locale:
 - corrections automatiques prudentes appliquees: `75`.
 - CER/WER judiciaire sur 100 lignes validees: `0.1301 / 0.4582`;
 - CER/WER apres correction post-HTR: `0.1075 / 0.4011`.
+- NER/POS rule-based: `106` entites, `17` relations, export TEI et graphe.
 
 ### 6. Evaluation CATMuS
 

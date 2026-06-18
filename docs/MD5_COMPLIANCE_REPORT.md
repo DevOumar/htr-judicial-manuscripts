@@ -123,6 +123,24 @@ The project is largely compliant with the MD5 computer vision requirements after
 1. IoU cannot be numerically demonstrated without comparable reference polygons in the current local outputs.
 2. Docstring coverage remains insufficient across legacy modules.
 3. Judicial-domain CER/WER is computed on 100 validated references in `data/judicial_gt/judicial_gt_annotation_with_draft.csv`.
+
+## NLP avance soutenance
+
+Les consignes de soutenance demandent aussi de presenter NER, POS, relations,
+graphe et TEI, meme sous forme partielle. Le depot contient maintenant une
+implementation legere et reproductible :
+
+| Element | Statut | Fichier |
+| --- | --- | --- |
+| Schema BIO NER | Rule-based | `src/nlp/advanced_pipeline.py` |
+| POS tagging | Heuristique | `src/nlp/advanced_pipeline.py` |
+| Relations simples | Rule-based | `dataset_nlp/advanced/entity_graph.json` |
+| Graphe | GraphML/JSON | `dataset_nlp/advanced/entity_graph.graphml` |
+| TEI-XML | Minimal | `dataset_nlp/advanced/transcription_tei.xml` |
+
+Limite : il ne s'agit pas encore d'un fine-tuning CamemBERT-LoRA ni d'un POS
+Stanza/Pie. Cette partie est presentee comme une base fonctionnelle et non
+comme un modele supervise final.
 4. HTR quality is improved with Kraken but remains a model-performance limitation rather than a pipeline-conformity failure.
 
 The project is now reproducible and auditable for preprocessing, segmentation, HTR evaluation, JSON contract, NLP enrichment, quality flags, bootstrap confidence intervals, dataset hashes, and experiment tracking.

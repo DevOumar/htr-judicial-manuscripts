@@ -31,6 +31,11 @@ Date : 2026-06-18
 | Comparaison vocabulaire brut / corrige | Fait | `outputs/nlp_correction/vocabulary_comparison.md` |
 | Distance de Levenshtein | Fait | `src/nlp/correction.py`, `src/htr/metrics.py` |
 | Evaluation d'impact avant/apres correction | Prete | `outputs/nlp_correction/correction_impact_report.md` |
+| Schema BIO NER | Fait en version rule-based | `src/nlp/advanced_pipeline.py`, `dataset_nlp/advanced/advanced_annotations.json` |
+| POS tagging | Fait en version heuristique | `src/nlp/advanced_pipeline.py` |
+| Relations simples | Fait | `dataset_nlp/advanced/entity_graph.json` |
+| Graphe | Fait | `dataset_nlp/advanced/entity_graph.graphml` |
+| TEI-XML | Fait | `dataset_nlp/advanced/transcription_tei.xml` |
 | NER avec CamemBERT | Reportee | etape avancee ; il manque 200-300 tokens annotes |
 | POS avec Stanza/Pie | Reportee | etape avancee ; modele externe non installe |
 | Graphe / TEI | Reportee | etape avancee |

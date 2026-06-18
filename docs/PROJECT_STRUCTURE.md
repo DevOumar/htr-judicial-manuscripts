@@ -23,6 +23,7 @@ localement. L'objectif est de garder le depot GitHub lisible pour l'evaluation.
 | `data/judicial_gt/` | 100 lignes judiciaires annotees et validees |
 | `data/lexicons/` | Lexique juridique pour correction post-HTR |
 | `dataset_nlp/` | Export NLP leger et reproductible |
+| `dataset_nlp/advanced/` | NER/POS rule-based, graphe et TEI-XML |
 | `segmentations/` | PAGE XML et polygones legers |
 | `schemas/` | Schemas JSON |
 | `artifacts/` | Hashes SHA-256 |

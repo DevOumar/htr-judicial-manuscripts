@@ -1,0 +1,339 @@
+{
+  "nodes": [
+    {
+      "id": "1643",
+      "label": "DATE"
+    },
+    {
+      "id": "1673",
+      "label": "DATE"
+    },
+    {
+      "id": "1693",
+      "label": "DATE"
+    },
+    {
+      "id": "Aoudes",
+      "label": "PER"
+    },
+    {
+      "id": "Aouse",
+      "label": "PER"
+    },
+    {
+      "id": "Aousi",
+      "label": "PER"
+    },
+    {
+      "id": "Aoust",
+      "label": "DATE"
+    },
+    {
+      "id": "Aoust 1693",
+      "label": "DATE"
+    },
+    {
+      "id": "Avodaux",
+      "label": "PER"
+    },
+    {
+      "id": "Bon",
+      "label": "PER"
+    },
+    {
+      "id": "Ceu",
+      "label": "PER"
+    },
+    {
+      "id": "Dudit",
+      "label": "PER"
+    },
+    {
+      "id": "Faton",
+      "label": "PER"
+    },
+    {
+      "id": "Francois",
+      "label": "PER"
+    },
+    {
+      "id": "Germain",
+      "label": "PER"
+    },
+    {
+      "id": "Justice",
+      "label": "PER"
+    },
+    {
+      "id": "Ladrie",
+      "label": "PER"
+    },
+    {
+      "id": "Ladrte",
+      "label": "PER"
+    },
+    {
+      "id": "Louis",
+      "label": "PER"
+    },
+    {
+      "id": "MMessieurs",
+      "label": "PER"
+    },
+    {
+      "id": "Mardry",
+      "label": "PER"
+    },
+    {
+      "id": "Mesnieurs",
+      "label": "PER"
+    },
+    {
+      "id": "Miron",
+      "label": "PER"
+    },
+    {
+      "id": "Mison",
+      "label": "PER"
+    },
+    {
+      "id": "Monneur",
+      "label": "PER"
+    },
+    {
+      "id": "Monsieur",
+      "label": "PER"
+    },
+    {
+      "id": "Mossieurs",
+      "label": "PER"
+    },
+    {
+      "id": "Mouse",
+      "label": "PER"
+    },
+    {
+      "id": "Parlement de Paris",
+      "label": "UNKNOWN"
+    },
+    {
+      "id": "Requestes",
+      "label": "PER"
+    },
+    {
+      "id": "Reyne",
+      "label": "PER"
+    },
+    {
+      "id": "Robert",
+      "label": "PER"
+    },
+    {
+      "id": "Roddes",
+      "label": "PER"
+    },
+    {
+      "id": "Ros",
+      "label": "PER"
+    },
+    {
+      "id": "Roy",
+      "label": "TITLE"
+    },
+    {
+      "id": "Roydes",
+      "label": "PER"
+    },
+    {
+      "id": "Roysont",
+      "label": "PER"
+    },
+    {
+      "id": "Seigneur",
+      "label": "TITLE"
+    },
+    {
+      "id": "Seigneur Roy",
+      "label": "TITLE"
+    },
+    {
+      "id": "Seigneurs",
+      "label": "PER"
+    },
+    {
+      "id": "Thionnille",
+      "label": "PER"
+    },
+    {
+      "id": "Thionuille",
+      "label": "PER"
+    },
+    {
+      "id": "Thionvilles",
+      "label": "LOC"
+    },
+    {
+      "id": "Tremblay",
+      "label": "PER"
+    },
+    {
+      "id": "UNK",
+      "label": "PER"
+    },
+    {
+      "id": "aoust",
+      "label": "DATE"
+    },
+    {
+      "id": "basse justice",
+      "label": "UNKNOWN"
+    },
+    {
+      "id": "chambre",
+      "label": "ORG"
+    },
+    {
+      "id": "chambres",
+      "label": "ORG"
+    },
+    {
+      "id": "corbeil",
+      "label": "LOC"
+    },
+    {
+      "id": "cour",
+      "label": "ORG"
+    },
+    {
+      "id": "document",
+      "label": "UNKNOWN"
+    },
+    {
+      "id": "justice moyenne",
+      "label": "UNKNOWN"
+    },
+    {
+      "id": "mars",
+      "label": "DATE"
+    },
+    {
+      "id": "may",
+      "label": "DATE"
+    },
+    {
+      "id": "paris",
+      "label": "LOC"
+    },
+    {
+      "id": "parlement",
+      "label": "ORG"
+    },
+    {
+      "id": "picardie",
+      "label": "LOC"
+    },
+    {
+      "id": "presidens",
+      "label": "TITLE"
+    },
+    {
+      "id": "president",
+      "label": "TITLE"
+    },
+    {
+      "id": "procureur",
+      "label": "TITLE"
+    },
+    {
+      "id": "seigneur",
+      "label": "TITLE"
+    }
+  ],
+  "edges": [
+    {
+      "source": "document",
+      "target": "mars",
+      "type": "dated"
+    },
+    {
+      "source": "document",
+      "target": "mars",
+      "type": "dated"
+    },
+    {
+      "source": "document",
+      "target": "may",
+      "type": "dated"
+    },
+    {
+      "source": "chambres",
+      "target": "paris",
+      "type": "located_near"
+    },
+    {
+      "source": "document",
+      "target": "Aoust",
+      "type": "dated"
+    },
+    {
+      "source": "justice moyenne",
+      "target": "Parlement de Paris",
+      "type": "legal_topic"
+    },
+    {
+      "source": "basse justice",
+      "target": "Parlement de Paris",
+      "type": "legal_topic"
+    },
+    {
+      "source": "document",
+      "target": "1673",
+      "type": "dated"
+    },
+    {
+      "source": "Roy",
+      "target": "cour",
+      "type": "acts_in"
+    },
+    {
+      "source": "Seigneur Roy",
+      "target": "cour",
+      "type": "acts_in"
+    },
+    {
+      "source": "document",
+      "target": "Aoust",
+      "type": "dated"
+    },
+    {
+      "source": "document",
+      "target": "Aoust",
+      "type": "dated"
+    },
+    {
+      "source": "document",
+      "target": "aoust",
+      "type": "dated"
+    },
+    {
+      "source": "document",
+      "target": "1693",
+      "type": "dated"
+    },
+    {
+      "source": "document",
+      "target": "Aoust 1693",
+      "type": "dated"
+    },
+    {
+      "source": "document",
+      "target": "1643",
+      "type": "dated"
+    },
+    {
+      "source": "seigneur",
+      "target": "cour",
+      "type": "acts_in"
+    }
+  ]
+}
