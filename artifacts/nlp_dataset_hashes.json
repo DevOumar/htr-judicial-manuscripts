@@ -1,0 +1,21 @@
+{
+  "seed": 42,
+  "input_path": "dataset_nlp\\transcriptions.json",
+  "splits": {
+    "train": {
+      "path": "dataset_nlp\\splits\\train.json",
+      "num_rows": 171,
+      "sha256": "d85cc0dcd07f49a9728f710f6f6c403e1954eed46fa310005cacfcb7d7b61c96"
+    },
+    "validation": {
+      "path": "dataset_nlp\\splits\\validation.json",
+      "num_rows": 35,
+      "sha256": "4b8ddd03d0aad42b340c53b48cff291ff155a55895cfe25678fd5b52d5689e5e"
+    },
+    "test": {
+      "path": "dataset_nlp\\splits\\test.json",
+      "num_rows": 41,
+      "sha256": "1b83c6cee55fad98f160b3ce6475c765c7ebbdb54e9642891acce1e04bf1bfe0"
+    }
+  }
+}

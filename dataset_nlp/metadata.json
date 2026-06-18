@@ -1,0 +1,62 @@
+{
+  "name": "Parlement de Paris judicial HTR dataset",
+  "source_pipeline": "outputs\\judicial_demo",
+  "num_pages": 5,
+  "num_lines": 247,
+  "corpus": {
+    "name": "Parlement de Paris - copie de registres",
+    "institution": "Bibliothèque nationale de France, Gallica",
+    "ark": "btv1b9062074w",
+    "source_url": "https://gallica.bnf.fr/ark:/12148/btv1b9062074w",
+    "manifest_url": "https://gallica.bnf.fr/iiif/ark:/12148/btv1b9062074w/manifest.json",
+    "period": "1643-1644",
+    "description": "Copie de registres du Parlement de Paris, années 1643-1644, manuscrit Français 21256.",
+    "license": "Gallica conditions of use"
+  },
+  "schema": "schemas/transcription_schema.json",
+  "htr_source": "kraken",
+  "kraken_dir": "outputs\\kraken_ocr_judicial",
+  "pages": [
+    {
+      "page_id": "page_01_canvas_0021",
+      "num_lines": 50,
+      "json": "dataset_nlp\\page_01_canvas_0021.json",
+      "page_xml": "segmentations\\page_xml\\page_01_canvas_0021.xml",
+      "polygons": "segmentations\\polygons\\page_01_canvas_0021_polygons.json",
+      "full_page_transcription": "dataset_nlp\\page_01_canvas_0021_full_page_transcription.txt"
+    },
+    {
+      "page_id": "page_02_canvas_0022",
+      "num_lines": 48,
+      "json": "dataset_nlp\\page_02_canvas_0022.json",
+      "page_xml": "segmentations\\page_xml\\page_02_canvas_0022.xml",
+      "polygons": "segmentations\\polygons\\page_02_canvas_0022_polygons.json",
+      "full_page_transcription": "dataset_nlp\\page_02_canvas_0022_full_page_transcription.txt"
+    },
+    {
+      "page_id": "page_03_canvas_0023",
+      "num_lines": 51,
+      "json": "dataset_nlp\\page_03_canvas_0023.json",
+      "page_xml": "segmentations\\page_xml\\page_03_canvas_0023.xml",
+      "polygons": "segmentations\\polygons\\page_03_canvas_0023_polygons.json",
+      "full_page_transcription": "dataset_nlp\\page_03_canvas_0023_full_page_transcription.txt"
+    },
+    {
+      "page_id": "page_04_canvas_0024",
+      "num_lines": 48,
+      "json": "dataset_nlp\\page_04_canvas_0024.json",
+      "page_xml": "segmentations\\page_xml\\page_04_canvas_0024.xml",
+      "polygons": "segmentations\\polygons\\page_04_canvas_0024_polygons.json",
+      "full_page_transcription": "dataset_nlp\\page_04_canvas_0024_full_page_transcription.txt"
+    },
+    {
+      "page_id": "page_05_canvas_0025",
+      "num_lines": 50,
+      "json": "dataset_nlp\\page_05_canvas_0025.json",
+      "page_xml": "segmentations\\page_xml\\page_05_canvas_0025.xml",
+      "polygons": "segmentations\\polygons\\page_05_canvas_0025_polygons.json",
+      "full_page_transcription": "dataset_nlp\\page_05_canvas_0025_full_page_transcription.txt"
+    }
+  ],
+  "quality_note": "All lines are machine-generated HTR predictions. Lines marked needs_review=true should be manually corrected before NLP use."
+}

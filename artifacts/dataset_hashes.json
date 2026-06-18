@@ -1,0 +1,14 @@
+{
+  "train": {
+    "num_rows": 128,
+    "sha256": "5cbe01718489ccb05b7fad745b0bd1db250b93d27d1f48553ef024f53156ca2a"
+  },
+  "validation": {
+    "num_rows": 16,
+    "sha256": "82a94ed85b5fe2e2f1fd2fbfcdf0520378401bdc6170d37fa5f77790b8301669"
+  },
+  "test": {
+    "num_rows": 16,
+    "sha256": "0f7a34b21b2fc38ae1a404f28c0198ca076fcb2d881919fa693fa9c9ab086170"
+  }
+}

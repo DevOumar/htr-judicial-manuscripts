@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.org/htr-judicial-manuscripts/transcription_schema.json",
+  "title": "HTR Judicial Manuscripts Line Transcriptions",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "required": [
+      "image_id",
+      "page_id",
+      "line_id",
+      "transcription",
+      "confidence",
+      "needs_review",
+      "polygon",
+      "source_image",
+      "model_name"
+    ],
+    "properties": {
+      "image_id": {"type": "string"},
+      "page_id": {"type": "string"},
+      "line_id": {"type": "string"},
+      "id": {"type": "string"},
+      "order": {"type": "integer", "minimum": 0},
+      "transcription": {"type": "string"},
+      "prediction": {"type": "string"},
+      "confidence": {"type": "number", "minimum": 0, "maximum": 1},
+      "needs_review": {"type": "boolean"},
+      "polygon": {
+        "type": "array",
+        "items": {
+          "type": "array",
+          "prefixItems": [{"type": "integer"}, {"type": "integer"}],
+          "minItems": 2,
+          "maxItems": 2
+        }
+      },
+      "baseline": {
+        "type": "array",
+        "items": {
+          "type": "array",
+          "prefixItems": [{"type": "integer"}, {"type": "integer"}],
+          "minItems": 2,
+          "maxItems": 2
+        }
+      },
+      "bbox": {
+        "type": "array",
+        "items": {"type": "integer"},
+        "minItems": 4,
+        "maxItems": 4
+      },
+      "source_image": {"type": "string"},
+      "crop_path": {"type": "string"},
+      "model_name": {"type": "string"},
+      "transcription_seconds": {"type": "number", "minimum": 0}
+    },
+    "additionalProperties": true
+  }
+}

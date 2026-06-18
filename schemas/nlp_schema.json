@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.org/htr-judicial-manuscripts/nlp_schema.json",
+  "title": "NLP-enriched HTR Judicial Manuscripts",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "required": [
+      "image_id",
+      "page_id",
+      "line_id",
+      "transcription",
+      "normalized_transcription",
+      "tokens",
+      "lemmas"
+    ],
+    "properties": {
+      "image_id": {"type": "string"},
+      "page_id": {"type": "string"},
+      "line_id": {"type": "string"},
+      "transcription": {"type": "string"},
+      "normalized_transcription": {"type": "string"},
+      "rule_normalized_transcription": {"type": "string"},
+      "normalization_rules_applied": {
+        "type": "array",
+        "items": {"type": "string"}
+      },
+      "tokens": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": ["text", "normalized", "lemma", "type", "start", "end"],
+          "properties": {
+            "text": {"type": "string"},
+            "normalized": {"type": "string"},
+            "lemma": {"type": "string"},
+            "type": {"type": "string", "enum": ["word", "number", "punct", "unknown"]},
+            "start": {"type": "integer", "minimum": 0},
+            "end": {"type": "integer", "minimum": 0}
+          },
+          "additionalProperties": false
+        }
+      },
+      "lemmas": {
+        "type": "array",
+        "items": {"type": "string"}
+      },
+      "num_tokens": {"type": "integer", "minimum": 0},
+      "num_word_tokens": {"type": "integer", "minimum": 0}
+    },
+    "additionalProperties": true
+  }
+}

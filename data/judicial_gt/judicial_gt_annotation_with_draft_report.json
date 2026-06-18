@@ -1,0 +1,8 @@
+{
+  "input_csv": "data\\judicial_gt\\judicial_gt_annotation.csv",
+  "correction_json": "outputs\\nlp_correction\\corrected_transcriptions.json",
+  "output_csv": "data\\judicial_gt\\judicial_gt_annotation_with_draft.csv",
+  "num_rows": 100,
+  "reference_policy": "reference is intentionally empty; fill manually after checking the crop image",
+  "draft_policy": "reference_draft is an automatic aid, not ground truth"
+}
