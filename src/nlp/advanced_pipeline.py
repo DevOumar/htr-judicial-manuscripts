@@ -238,8 +238,15 @@ def write_tei(lines: List[Dict[str, Any]], output_path: Path) -> None:
                     line_el[-1].tail = (line_el[-1].tail or "") + text[cursor:start]
                 else:
                     line_el.text = (line_el.text or "") + text[cursor:start]
-            tag = "date" if entity["label"] == "DATE" else "name"
-            attrs = {"type": entity["label"].lower()}
+            tag_by_label = {
+                "PER": "persName",
+                "LOC": "placeName",
+                "DATE": "date",
+                "ORG": "orgName",
+                "TITLE": "roleName",
+            }
+            tag = tag_by_label.get(str(entity["label"]), "name")
+            attrs = {"type": str(entity["label"]).lower()}
             ent_el = ET.SubElement(line_el, tag, attrs)
             ent_el.text = text[start:end]
             cursor = end

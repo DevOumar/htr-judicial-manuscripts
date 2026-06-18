@@ -36,6 +36,10 @@ Date : 2026-06-18
 | Relations simples | Fait | `dataset_nlp/advanced/entity_graph.json` |
 | Graphe | Fait | `dataset_nlp/advanced/entity_graph.graphml` |
 | TEI-XML | Fait | `dataset_nlp/advanced/transcription_tei.xml` |
+| Echantillon BIO 200-300 tokens | Fait | `data/ner/bio_sample.csv` |
+| Alignement WordPiece avec `-100` | Fait | `src/nlp/ner_training.py` |
+| Evaluation type seqeval | Fait | `src/nlp/ner_training.py`, `dataset_nlp/ner/ner_scaffold_report.md` |
+| POS Stanza/Pie | Interface optionnelle + fallback | `src/nlp/pos_external.py` |
 | NER avec CamemBERT | Reportee | etape avancee ; il manque 200-300 tokens annotes |
 | POS avec Stanza/Pie | Reportee | etape avancee ; modele externe non installe |
 | Graphe / TEI | Reportee | etape avancee |

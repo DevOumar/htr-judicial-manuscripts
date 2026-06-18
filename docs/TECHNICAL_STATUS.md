@@ -79,6 +79,8 @@ Validation:
 - `docs/NLP_REQUIREMENTS_AUDIT.md` maps the NLP PDF requirements to repository artifacts.
 - `docs/POST_HTR_CORRECTION.md` documents lexicon correction and before/after impact evaluation.
 - `docs/ADVANCED_NLP_PRESENTATION.md` documents rule-based BIO NER, POS, relations, graph export and TEI-XML.
+- `src/nlp/ner_training.py` documents the CamemBERT NER scaffold, WordPiece label alignment with `-100`, and seqeval-like F1.
+- `data/ner/bio_sample.csv` contains 224 BIO-annotated tokens for the minimal NER training/evaluation sample.
 - `outputs/judicial_gt_evaluation/final_judicial_evaluation_report.md` summarizes final CER/WER and bootstrap intervals.
 
 ## PAGE XML Validation

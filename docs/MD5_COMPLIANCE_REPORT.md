@@ -133,14 +133,18 @@ implementation legere et reproductible :
 | Element | Statut | Fichier |
 | --- | --- | --- |
 | Schema BIO NER | Rule-based | `src/nlp/advanced_pipeline.py` |
+| BIO sample 200-300 tokens | Present | `data/ner/bio_sample.csv` |
+| WordPiece alignment with `-100` | Present | `src/nlp/ner_training.py` |
+| seqeval-like F1 | Present | `src/nlp/ner_training.py`, `dataset_nlp/ner/ner_scaffold_report.md` |
 | POS tagging | Heuristique | `src/nlp/advanced_pipeline.py` |
 | Relations simples | Rule-based | `dataset_nlp/advanced/entity_graph.json` |
 | Graphe | GraphML/JSON | `dataset_nlp/advanced/entity_graph.graphml` |
 | TEI-XML | Minimal | `dataset_nlp/advanced/transcription_tei.xml` |
 
-Limite : il ne s'agit pas encore d'un fine-tuning CamemBERT-LoRA ni d'un POS
-Stanza/Pie. Cette partie est presentee comme une base fonctionnelle et non
-comme un modele supervise final.
+Limite : il ne s'agit pas encore d'un fine-tuning CamemBERT-LoRA long ni d'une
+evaluation NER sur un vrai split annote. Le depot contient cependant le schema,
+l'echantillon, l'alignement, la metrique et les exports necessaires pour le faire
+proprement.
 4. HTR quality is improved with Kraken but remains a model-performance limitation rather than a pipeline-conformity failure.
 
 The project is now reproducible and auditable for preprocessing, segmentation, HTR evaluation, JSON contract, NLP enrichment, quality flags, bootstrap confidence intervals, dataset hashes, and experiment tracking.

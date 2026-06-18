@@ -1,0 +1,56 @@
+{
+  "base_model": "Jean-Baptiste/camembert-ner",
+  "num_labels": 11,
+  "labels": [
+    "O",
+    "B-PER",
+    "I-PER",
+    "B-LOC",
+    "I-LOC",
+    "B-ORG",
+    "I-ORG",
+    "B-DATE",
+    "I-DATE",
+    "B-TITLE",
+    "I-TITLE"
+  ],
+  "bio_csv": "data\\ner\\bio_sample.csv",
+  "num_sentences": 12,
+  "num_tokens": 224,
+  "alignment_policy": "first sub-token receives the BIO label; special and continuation tokens use -100",
+  "seqeval_like_baseline": {
+    "micro": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0
+    },
+    "per_type": {
+      "DATE": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0
+      },
+      "LOC": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0
+      },
+      "ORG": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0
+      },
+      "PER": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0
+      },
+      "TITLE": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0
+      }
+    }
+  },
+  "next_step": "Fine-tune CamemBERT-LoRA on this CSV after expanding manual annotation."
+}

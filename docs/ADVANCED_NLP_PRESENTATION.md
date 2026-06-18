@@ -18,12 +18,15 @@ python src/nlp/advanced_pipeline.py --input dataset_nlp/transcriptions.json --le
 | `dataset_nlp/advanced/entity_graph.graphml` | Export graphe compatible Gephi/NetworkX |
 | `dataset_nlp/advanced/transcription_tei.xml` | Export TEI-XML minimal |
 | `dataset_nlp/advanced/advanced_nlp_report.md` | Rapport synthetique |
+| `data/ner/bio_sample.csv` | Echantillon BIO de 224 tokens |
+| `dataset_nlp/ner/ner_scaffold_report.md` | Scaffold CamemBERT NER, alignement `-100`, F1 type seqeval |
 
 ## Resultats actuels
 
 - Lignes traitees : 247
 - Entites detectees : 106
 - Relations extraites : 17
+- Echantillon BIO : 224 tokens
 
 Repartition des entites :
 
@@ -45,6 +48,9 @@ Le schema BIO utilise :
 - `ORG` : institutions ;
 - `TITLE` : titres et fonctions.
 
+Le fichier `data/ner/bio_sample.csv` contient un echantillon annote de 224
+tokens avec les classes `PER`, `LOC`, `ORG`, `DATE` et `TITLE`.
+
 Exemples :
 
 ```text
@@ -56,7 +62,13 @@ Aoust -> B-DATE
 
 ### POS
 
-Le POS tagging est heuristique et suit des categories Universal POS simples :
+Le POS tagging passe par `src/nlp/pos_external.py` :
+
+1. Stanza `frm` si disponible ;
+2. pie-extended `medieval-fr` si configure ;
+3. fallback heuristique local.
+
+Le fallback suit des categories Universal POS simples :
 
 - `NOUN`
 - `PROPN`
@@ -81,8 +93,8 @@ Les relations sont extraites par regles simples :
 Cette implementation est volontairement legere :
 
 - pas de fine-tuning CamemBERT-LoRA termine ;
-- pas de POS Stanza/Pie installe ;
-- pas de F1 NER fiable faute d'annotations BIO humaines ;
+- POS Stanza/Pie optionnel, fallback local utilise si les modeles ne sont pas installes ;
+- F1 NER uniquement sur le scaffold de controle, pas encore sur un vrai split annote ;
 - les relations sont des relations par regles, pas un modele supervise.
 
 Pour la soutenance, il faut presenter cette partie comme une structure

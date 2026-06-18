@@ -132,6 +132,7 @@ python src/nlp/create_splits.py --input dataset_nlp/transcriptions.json --output
 python src/nlp/enrich_dataset.py --input dataset_nlp/transcriptions.json --output-dir dataset_nlp/nlp
 python src/nlp/correction.py --input dataset_nlp/transcriptions.json --lexicon data/lexicons/judicial_lexicon.txt --gt data/judicial_gt/judicial_gt_annotation_with_draft.csv --output-dir outputs/nlp_correction
 python src/nlp/advanced_pipeline.py --input dataset_nlp/transcriptions.json --lexicon data/lexicons/judicial_lexicon.txt --output-dir dataset_nlp/advanced
+python src/nlp/ner_training.py --bio-csv data/ner/bio_sample.csv --output-dir dataset_nlp/ner
 python src/evaluation/validate_data_contract.py --input-dir dataset_nlp/nlp/transcriptions_enriched.json --schema schemas/nlp_schema.json
 ```
 
@@ -156,6 +157,8 @@ Livrables NLP :
 - `dataset_nlp/advanced/entity_graph.graphml`
 - `dataset_nlp/advanced/transcription_tei.xml`
 - `dataset_nlp/advanced/advanced_nlp_report.md`
+- `data/ner/bio_sample.csv`
+- `dataset_nlp/ner/ner_scaffold_report.md`
 
 Dernière exécution locale :
 
@@ -171,6 +174,7 @@ Dernière exécution locale :
 - CER/WER judiciaire sur 100 lignes validées : `0.1301 / 0.4582` ;
 - CER/WER après correction post-HTR : `0.1075 / 0.4011` ;
 - NER/POS rule-based : `106` entités, `17` relations, export TEI et graphe.
+- scaffold NER CamemBERT : `224` tokens BIO, alignement WordPiece avec `-100`, F1 type seqeval.
 
 ### 6. Évaluation CATMuS
 

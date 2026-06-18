@@ -7,7 +7,7 @@ L'entrée est le JSON produit par le pipeline Computer Vision / HTR.
 
 L'objectif n'est pas de produire une édition scientifique définitive. L'objectif
 est de produire un jeu de données exploitable en NLP, reproductible, avec texte
-normalisé, tokens, lemmes et statistiques.
+normalisé, tokens, lemmes, entités, relations et exports structurés.
 
 ## Contrat de données
 
@@ -23,7 +23,7 @@ Sortie :
 
 Les deux schémas sont validés avec `jsonschema`.
 
-## Règles de normalisation
+## Normalisation
 
 Les règles sont déterministes et implémentées dans :
 
@@ -38,54 +38,37 @@ Règles appliquées :
 | Unicode NFC | Stabiliser la représentation Unicode | accents décomposés -> accents composés |
 | Apostrophes | Harmoniser les apostrophes | `l’ordonnance` -> `l'ordonnance` |
 | Abréviations avec tilde | Développer des abréviations fréquentes | `q~` -> `que` |
-| Tilde nasal | Résoudre certains nasaux explicites | `ã` -> `an`, `õ` -> `on` |
 | Graphies fréquentes | Normaliser quelques formes anciennes | `roy` -> `roi`, `reyne` -> `reine` |
 | Espaces | Réduire les espaces multiples | `a   b` -> `a b` |
 
-La normalisation globale `u/v` et `i/j` mentionnée dans les consignes NLP n'est
-pas appliquée automatiquement. Une règle aveugle peut dégrader les noms propres,
-les lieux et les termes juridiques. Elle doit être ajoutée plus tard sous forme
-guidée par lexique, après vérification manuelle du corpus.
+La normalisation globale `u/v` et `i/j` n'est pas appliquée automatiquement :
+elle peut dégrader les noms propres, les lieux et les termes juridiques.
 
-## Correction guidée par la confiance
+## Correction post-HTR
 
-Les consignes recommandent d'utiliser `char_confidences` et `candidates`.
-
-État actuel :
-
-- la confiance au niveau ligne est disponible avec `confidence` ;
-- le champ `needs_review` est disponible ;
-- `char_confidences` n'est pas disponible dans l'export Kraken actuel ;
-- les listes de candidats caractère par caractère ne sont pas disponibles.
-
-La correction guidée par candidats est donc documentée mais non appliquée. Le
-pipeline utilise `needs_review` pour prioriser la correction manuelle.
-
-## Correction post-HTR par lexique
-
-La correction post-HTR est implementee dans :
+La correction post-HTR est implémentée dans :
 
 ```text
 src/nlp/correction.py
 ```
 
-Lexique :
+Elle utilise :
 
-```text
-data/lexicons/judicial_lexicon.txt
-```
+- un lexique juridique : `data/lexicons/judicial_lexicon.txt` ;
+- des règles d'erreurs HTR fréquentes ;
+- une restauration prudente des mots collés ;
+- des suggestions lexicales par distance de Levenshtein.
 
-Le pipeline distingue :
+Exemples :
 
-- les corrections automatiques appliquees, limitees a des erreurs HTR frequentes
-  explicitement listees ;
-- les suggestions lexicales, calculees par distance de Levenshtein, mais non
-  appliquees automatiquement.
+| HTR brut | Correction |
+| --- | --- |
+| `justicemoyenne` | `justice moyenne` |
+| `bassesustce` | `basse justice` |
+| `passeder` | `posseder` |
+| `pistice` | `justice` |
 
-Cette strategie est volontairement prudente. Elle evite de transformer des
-graphies anciennes ou des noms propres en formes modernes incorrectes.
-
-## Tokenisation
+## Tokenisation et lemmatisation
 
 La tokenisation est implémentée dans :
 
@@ -98,41 +81,100 @@ Elle conserve :
 - les tokens mots ;
 - les tokens numériques ;
 - la ponctuation ;
-- les offsets de caractères dans la ligne normalisée.
+- les offsets de caractères.
 
-## Lemmatisation
+Le lemmatiseur est conservateur et basé sur des règles. Il traite quelques
+formes fréquentes du français ancien sans stemming agressif.
 
-Le lemmatiseur actuel est conservateur et basé sur des règles. Il traite quelques
-formes fréquentes du français ancien sans appliquer de stemming agressif.
+## NER et schéma BIO
 
-Exemples :
+Le schéma BIO utilise les classes :
 
-| Forme | Lemme |
-| --- | --- |
-| `roy` | `roi` |
-| `reyne` | `reine` |
-| `mil` | `mille` |
-| `cens` | `cent` |
-| `estoit` | `etre` |
-| `avoient` | `avoir` |
+```text
+PER, LOC, ORG, DATE, TITLE
+```
 
-Ces lemmes servent à l'exploration et au volet NLP. Ils ne doivent pas être
-présentés comme une annotation linguistique validée manuellement.
+La classe `TITLE` est ajoutée pour les titres fréquents dans le corpus :
+`Roy`, `Seigneur`, `procureur`, `président`, `chancelier`, etc.
+
+Un échantillon minimal de 224 tokens est disponible dans :
+
+```text
+data/ner/bio_sample.csv
+```
+
+Il sert à valider :
+
+- le format BIO ;
+- les classes d'entités ;
+- l'alignement avec une tokenisation de type CamemBERT ;
+- une évaluation F1 type `seqeval`.
+
+## Alignement WordPiece et `-100`
+
+Le code d'alignement est dans :
+
+```text
+src/nlp/ner_training.py
+```
+
+Principe :
+
+- le premier sous-token reçoit le label BIO du mot original ;
+- les tokens spéciaux reçoivent `-100` ;
+- les sous-tokens de continuation reçoivent `-100` pour ne pas contribuer à la loss.
+
+Cette étape est critique pour un futur fine-tuning CamemBERT-LoRA.
+
+## POS et lemmes
+
+Le module optionnel est :
+
+```text
+src/nlp/pos_external.py
+```
+
+Priorité prévue :
+
+1. Stanza avec modèle `frm`, si installé ;
+2. pie-extended `medieval-fr`, si configuré ;
+3. fallback local rule-based.
+
+Le fallback permet au dépôt de rester exécutable même sans téléchargement de
+modèles externes.
+
+## Relations, graphe et TEI
+
+Le pipeline avancé est dans :
+
+```text
+src/nlp/advanced_pipeline.py
+```
+
+Il produit :
+
+- `dataset_nlp/advanced/advanced_annotations.json`
+- `dataset_nlp/advanced/entity_graph.json`
+- `dataset_nlp/advanced/entity_graph.graphml`
+- `dataset_nlp/advanced/transcription_tei.xml`
+
+L'export TEI utilise les balises :
+
+- `<persName>` pour `PER` ;
+- `<placeName>` pour `LOC` ;
+- `<date>` pour `DATE` ;
+- `<orgName>` pour `ORG` ;
+- `<roleName>` pour `TITLE`.
 
 ## Évaluation
 
-Sans vérité terrain manuelle, le CER/WER absolu sur le corpus judiciaire ne peut
-pas être calculé.
+Résultats principaux :
 
-Le projet fournit donc :
+- HTR judiciaire brut : CER/WER `0.1301 / 0.4582` ;
+- après correction post-HTR : CER/WER `0.1075 / 0.4011` ;
+- échantillon BIO : 224 tokens ;
+- NER/POS rule-based : 106 entités, 17 relations.
 
-- des CER/WER sur CATMuS pour l'évaluation HTR de base ;
-- un template de vérité terrain judiciaire ;
-- un CSV d'annotation assistée ;
-- des statistiques relatives de normalisation et d'EDA.
-
-Les références manuelles doivent être remplies dans :
-
-```text
-data/judicial_gt/judicial_gt_annotation.csv
-```
+Limite honnête : le fine-tuning CamemBERT-LoRA complet n'est pas lancé. Le dépôt
+contient le format, l'alignement, les métriques et les exports nécessaires pour
+le faire proprement ensuite.
