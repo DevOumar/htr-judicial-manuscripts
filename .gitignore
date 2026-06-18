@@ -83,6 +83,4 @@ temp/
 data/raw/
 data/processed/
 outputs/
-dataset_nlp/
-experiments/
 page_xml/

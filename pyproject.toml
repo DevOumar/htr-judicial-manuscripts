@@ -1,0 +1,15 @@
+[project]
+name = "htr-judicial-manuscripts"
+version = "0.1.0"
+description = "Computer Vision, HTR and NLP pipeline for French judicial manuscripts."
+requires-python = ">=3.10,<3.11"
+
+[tool.pytest.ini_options]
+testpaths = ["tests", "src/tests"]
+python_files = ["test_*.py"]
+
+[tool.htr_judicial]
+random_seed = 42
+cv_corpus = "Gallica btv1b9062074w, Parlement de Paris, 1643-1644"
+htr_engine = "Kraken ManuMcFrenchV3.mlmodel / 10.5281/zenodo.10874058"
+nlp_pipeline = "deterministic normalization, tokenization, conservative lemmatization"

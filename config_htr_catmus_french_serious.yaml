@@ -1,0 +1,57 @@
+dataset:
+  source: huggingface
+  name: CATMuS/medieval
+  config_name: null
+  streaming: false
+  cache_dir: data/cache/huggingface
+  image_column: im
+  text_column: text
+  id_column: null
+  text_normalization: readable
+  filters:
+    languages:
+      - French
+    centuries: []
+    genres: []
+    projects: []
+  split:
+    validation_size: 0.1
+    test_size: 0.1
+    seed: 42
+  max_samples:
+    train: 10000
+    validation: 1000
+    test: 1000
+
+model:
+  name: microsoft/trocr-small-handwritten
+  output_dir: models/trocr-catmus-french-serious
+
+training:
+  seed: 42
+  freeze_encoder: true
+  num_train_epochs: 10
+  per_device_train_batch_size: 8
+  per_device_eval_batch_size: 8
+  gradient_accumulation_steps: 2
+  learning_rate: 0.00001
+  weight_decay: 0.05
+  warmup_steps: 500
+  logging_steps: 50
+  eval_steps: 500
+  save_steps: 500
+  save_total_limit: 3
+  predict_with_generate: true
+  generation_max_length: 128
+  generation_num_beams: 5
+  run_final_eval: true
+  fp16: true
+
+evaluation:
+  max_samples: 500
+
+paths:
+  outputs_dir: outputs
+  samples_dir: outputs/dataset_samples
+  evaluation_dir: outputs/evaluation
+  notebooks_dir: notebooks

@@ -1,0 +1,97 @@
+dataset:
+  source: huggingface
+  name: CATMuS/medieval-samples
+  config_name: null
+  streaming: true
+  max_scan_samples_per_split: 1000
+  cache_dir: data/cache/huggingface
+  image_column: im
+  text_column: text
+  id_column: null
+  text_normalization: readable
+  filters:
+    languages:
+      - French
+    centuries: []
+    genres: []
+    projects: []
+  split:
+    validation_size: 0.1
+    test_size: 0.1
+    seed: 42
+  max_samples:
+    train: 128
+    validation: 16
+    test: 16
+
+model:
+  name: microsoft/trocr-small-handwritten
+  output_dir: models/trocr-catmus-french-decoder
+
+training:
+  seed: 42
+  freeze_encoder: true
+  num_train_epochs: 3
+  per_device_train_batch_size: 2
+  per_device_eval_batch_size: 2
+  gradient_accumulation_steps: 1
+  learning_rate: 0.00005
+  weight_decay: 0.0
+  warmup_steps: 0
+  logging_steps: 10
+  eval_steps: 1000
+  save_steps: 1000
+  save_total_limit: 2
+  predict_with_generate: true
+  generation_max_length: 64
+  generation_num_beams: 1
+  run_final_eval: false
+  fp16: false
+
+evaluation:
+  max_samples: 4
+
+paths:
+  outputs_dir: outputs
+  samples_dir: outputs/dataset_samples
+  evaluation_dir: outputs/evaluation
+  notebooks_dir: notebooks
+
+preprocessing:
+  deskew: true
+  clahe_clip_limit: 2.0
+  clahe_tile_grid_size:
+    - 8
+    - 8
+  median_blur_kernel: 3
+  sauvola_window_size: 25
+
+segmentation:
+  dataset_name: CATMuS/medieval-segmentation
+  split: test
+  sample_index: 0
+  output_dir: outputs/segmentation
+  text_direction: horizontal-lr
+  device: cpu
+  max_page_side: 1800
+  transcribe: true
+  max_transcribed_lines: null
+
+judicial_demo:
+  corpus_name: Parlement de Paris - copie de registres
+  institution: Bibliothèque nationale de France, Gallica
+  ark: btv1b9062074w
+  manifest_url: https://gallica.bnf.fr/iiif/ark:/12148/btv1b9062074w/manifest.json
+  source_url: https://gallica.bnf.fr/ark:/12148/btv1b9062074w
+  description: Copie de registres du Parlement de Paris, années 1643-1644, manuscrit Français 21256.
+  period: 1643-1644
+  output_dir: outputs/judicial_demo
+  page_indices:
+    - 20
+    - 21
+    - 22
+    - 23
+    - 24
+  image_width: 1600
+  transcribe: true
+  max_transcribed_lines_per_page: null
