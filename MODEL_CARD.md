@@ -1,119 +1,136 @@
-# Model Card
+# Fiche modèle
 
-## Current Final HTR Engine
+## Moteur HTR final actuel
 
-Current project HTR engine for the judicial demo:
+Le moteur HTR final utilisé pour la démonstration judiciaire est :
 
 ```text
 Kraken OCR + ManuMcFrenchV3.mlmodel
 ```
 
-Model identifier:
+Identifiant du modèle :
 
 ```text
 10.5281/zenodo.10874058
 ```
 
-Local model path used during validation:
+Chemin local utilisé pendant la validation :
 
 ```text
 C:\Users\33767\AppData\Local\htrmopo\htrmopo\34468dee-e4d7-5607-88d3-74a357bf60e8\ManuMcFrenchV3.mlmodel
 ```
 
-Model family:
+Famille du modèle :
 
-- Kraken recognition model;
-- trained for French handwritten documents;
-- reported by the model registry as a historical French manuscript model, seventeenth to twenty-first centuries;
-- license: CC-BY-4.0 according to the Kraken/HTR model metadata.
+- modèle de reconnaissance Kraken ;
+- entraîné pour des documents manuscrits français ;
+- indiqué dans le registre de modèles comme modèle pour manuscrits français historiques, du XVIIe au XXIe siècle ;
+- licence : CC-BY-4.0 d'après les métadonnées Kraken/HTR.
 
-The previous TrOCR model is retained as a baseline:
+Le modèle TrOCR précédent est conservé comme baseline :
 
 ```text
 models/trocr-catmus-french-decoder/final
 ```
 
-## Training Data
+## Données
 
-Primary development corpus:
+### Corpus de développement
 
-- `CATMuS/medieval-samples`;
-- filtered to French where metadata allows;
-- configured split sizes in `config.yaml`:
-  - train: 128 lines;
-  - validation: 16 lines;
-  - test: 16 lines.
+Le corpus CATMuS est utilisé comme ressource de développement et comme piste de fine-tuning futur :
 
-Final business corpus:
+- `CATMuS/medieval` ;
+- `CATMuS/medieval-samples` pour les tests légers ;
+- filtrage vers le français lorsque les métadonnées le permettent ;
+- environ 56 000 lignes françaises exploitables identifiées comme potentiel d'entraînement à grande échelle.
 
-- Gallica / BnF, Parlement de Paris, manuscript `btv1b9062074w`;
-- 5 pages processed;
-- 247 Kraken line crops;
-- no line-level ground truth yet, template prepared in `data/judicial_gt/`.
+Important : aucun entraînement massif sur ces 56 000 lignes n'a été lancé dans la version finale du projet.
 
-## Metrics
+### Corpus métier final
 
-### CATMuS TrOCR Baselines
+Le corpus final est le corpus judiciaire :
 
-Measured on the small CATMuS French test subset:
+- Gallica / BnF ;
+- registres du Parlement de Paris ;
+- manuscrit `btv1b9062074w` ;
+- période : 1643-1644 ;
+- 5 pages traitées ;
+- 247 crops de lignes produits par Kraken ;
+- 100 lignes validées manuellement dans `data/judicial_gt/judicial_gt_annotation_with_draft.csv`.
 
-| Model | CER | WER |
-| --- | ---: | ---: |
-| `microsoft/trocr-small-handwritten` | 0.6285 | 0.9722 |
-| `models/trocr-catmus-french-decoder/final` | 0.6989 | 0.9722 |
-| `dj0w/trocr-french-handwriting-v5` | 1.5896 | 1.5000 |
+## Métriques
 
-Bootstrap for the local French decoder:
+### Baselines TrOCR sur CATMuS
 
-- CER mean: 0.6989
-- CER IC95%: [0.6109, 0.7656]
-- WER mean: 0.9722
-- WER IC95%: [0.9143, 1.0000]
+Résultats mesurés sur un petit sous-ensemble CATMuS français :
 
-### Judicial Kraken OCR Run
+| Modèle | CER | WER |
+|---|---:|---:|
+| `microsoft/trocr-small-handwritten` | 0,6285 | 0,9722 |
+| `models/trocr-catmus-french-decoder/final` | 0,6989 | 0,9722 |
+| `dj0w/trocr-french-handwriting-v5` | 1,5896 | 1,5000 |
 
-Measured on 247 Parlement de Paris line crops, without judicial ground truth:
+Ces scores servent au positionnement des baselines. Ils ne sont pas les scores finaux du corpus judiciaire.
 
-- Lines processed: 247
-- Non-empty raw Kraken predictions: 245
-- Lines marked `needs_review`: 21
-- Mean confidence: 0.9477
-- Total runtime: 18.69 s
-- Mean runtime: 0.0757 s/line
+### Exécution Kraken OCR sur le corpus judiciaire
 
-Example raw predictions:
+Mesures sur les 247 lignes du Parlement de Paris :
+
+- lignes traitées : 247 ;
+- prédictions Kraken non vides : 245 ;
+- lignes marquées `needs_review` : 21 ;
+- confiance moyenne estimée : 0,9477 ;
+- temps total : 18,69 s ;
+- temps moyen : 0,0757 s/ligne.
+
+Exemples de prédictions brutes :
 
 - `le reply par le Roy la Reyne regenre sa merce`
 - `presente, phetippeaux et seeltees du grand seau`
 - `mil six cens trente huit, vingt sixiesne mars`
 
-Two very small crops generated empty raw predictions. The final `dataset_nlp` export replaces these empty strings with `[UNK]`, sets `confidence=0.0`, and marks them `needs_review=true` so that PAGE XML and JSON remain valid.
+Deux crops très petits ont produit une prédiction brute vide. L'export final `dataset_nlp` remplace ces chaînes vides par `[UNK]`, définit `confidence=0.0` et marque `needs_review=true` afin de garder les fichiers PAGE XML et JSON valides.
 
-Judicial CER/WER is not reported yet because the manual references in `data/judicial_gt/judicial_gt_template.csv` are intentionally empty. Filling these references is required before a scientific score can be computed.
+### Scores finaux sur la vérité terrain judiciaire
 
-## Intended Use
+Les scores suivants sont calculés sur les 100 lignes judiciaires validées manuellement :
 
-Use this model for:
+| Système | CER | WER |
+|---|---:|---:|
+| Kraken OCR brut | 13,01 % | 45,82 % |
+| Kraken OCR + correction post-HTR | 10,75 % | 40,11 % |
 
-- demonstrating a complete HTR pipeline;
-- generating preliminary machine transcriptions;
-- prioritizing manual review with `confidence` and `needs_review`;
-- baseline comparison before PyLaia/Kraken/further fine-tuning.
-- producing the current best automatic transcription available in the project.
+Intervalles de confiance bootstrap à 95 % :
 
-Do not use it as a final scholarly transcription model without manual correction.
+| Système | CER IC95 | WER IC95 |
+|---|---|---|
+| Kraken OCR brut | [11,96 %, 14,19 %] | [42,22 %, 49,58 %] |
+| Kraken OCR + correction post-HTR | [9,62 %, 12,05 %] | [36,34 %, 44,10 %] |
 
-## Recommended Next Step
+## Usage prévu
 
-Fill `data/judicial_gt/judicial_gt_template.csv` with 100-300 manual references and evaluate Kraken OCR:
+Ce modèle est utilisé pour :
 
-```bash
-python src/evaluation/evaluate_judicial_gt.py --gt data/judicial_gt/judicial_gt_template.csv --predictions-dir outputs/kraken_ocr_judicial --output outputs/judicial_gt_evaluation/judicial_gt_kraken_metrics.json
-```
+- démontrer un pipeline HTR complet ;
+- produire des transcriptions automatiques préliminaires ;
+- transcrire les lignes extraites des pages judiciaires ;
+- générer des exports PAGE XML et JSON exploitables ;
+- prioriser la relecture manuelle avec `confidence` et `needs_review` ;
+- fournir le meilleur moteur HTR automatique actuellement intégré au projet.
 
-Then compare:
+Il ne doit pas être utilisé comme transcription scientifique définitive sans correction humaine.
 
-- PyLaia CATMuS;
-- TrOCR Small/Base;
-- local TrOCR decoder;
-- any additional HTR-United or Kraken historical French model.
+## Limites
+
+- Les transcriptions restent imparfaites.
+- Le WER reste élevé à cause des mots collés, des graphies anciennes, des abréviations et des confusions de lettres.
+- Le modèle n'a pas été fine-tuné spécifiquement sur un grand corpus Parlement de Paris.
+- Les scores sont calculés sur 100 lignes validées, ce qui est suffisant pour une évaluation de projet mais reste limité pour une publication scientifique complète.
+
+## Prochaines étapes recommandées
+
+1. Étendre la vérité terrain judiciaire au-delà de 100 lignes.
+2. Tester PyLaia CATMuS sur les mêmes lignes.
+3. Comparer d'autres modèles HTR-United ou Kraken spécialisés.
+4. Lancer un fine-tuning GPU sur CATMuS français et sur des lignes judiciaires validées.
+5. Sélectionner le meilleur modèle sur CER validation, puis mesurer CER/WER final sur un test judiciaire séparé.
