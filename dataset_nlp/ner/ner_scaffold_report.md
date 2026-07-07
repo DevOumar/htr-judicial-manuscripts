@@ -1,10 +1,10 @@
 # NER CamemBERT-LoRA : scaffold
 
-- Modele de depart : `Jean-Baptiste/camembert-ner`
+- Modèle de départ : `Jean-Baptiste/camembert-ner`
 - Nombre de labels : `11`
-- Echantillon BIO : `data\ner\bio_sample.csv`
-- Phrases annotees : `12`
-- Tokens annotés : `224`
+- Échantillon BIO : `data\ner\bio_sample.csv`
+- Phrases annotées : `12`
+- Tokens annotés : `224`
 
 ## Labels
 
@@ -12,13 +12,13 @@
 
 ## Alignement WordPiece
 
-Les tokens speciaux et les sous-tokens de continuation recoivent `-100`.
+Les tokens spéciaux et les sous-tokens de continuation reçoivent `-100`.
 Seul le premier sous-token porte le label BIO du mot original.
 
-## Evaluation type seqeval
+## Évaluation type seqeval
 
-- F1 micro sur l'echantillon de controle : `1.0000`
+- F1 micro sur l'échantillon de contrôle : `1.0000`
 
 ## Limite
 
-Ce scaffold valide le format, l'alignement et la metrique. Il ne remplace pas un fine-tuning long.
+Ce scaffold valide le format, l'alignement et la métrique. Il ne remplace pas un fine-tuning long.

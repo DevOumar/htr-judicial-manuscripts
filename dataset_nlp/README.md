@@ -1,11 +1,14 @@
-# NLP Transcription Dataset
+# Dataset de transcriptions NLP
 
-This directory contains the JSON dataset required by the MD5 brief.
+Ce dossier contient le jeu de données JSON demandé pour le volet NLP du projet MD5.
 
-- `transcriptions.json`: flat line-level dataset validated by `schemas/transcription_schema.json`.
-- `page_*.json`: page-level line datasets.
-- `metadata.json`: corpus, source and file metadata.
+- `transcriptions.json` : dataset plat au niveau ligne, validé par `schemas/transcription_schema.json`.
+- `page_*.json` : datasets organisés par page.
+- `metadata.json` : métadonnées du corpus, des sources et des fichiers.
+- `nlp/` : sorties enrichies avec normalisation, tokens, lemmes et statistiques.
+- `advanced/` : sorties exploratoires NER, relations, graphe et TEI.
+- `splits/` : partitions train / validation / test.
 
-HTR source: `kraken`.
+Source HTR utilisée : `kraken`.
 
-Important: the current text is machine-generated HTR and must be reviewed for scholarly use. Use `needs_review` and `confidence` to prioritize manual correction. Empty raw predictions are exported as `[UNK]` so that PAGE XML and JSON remain structurally valid.
+Important : le texte actuel est généré automatiquement par HTR. Il doit être relu pour un usage scientifique ou éditorial. Les champs `needs_review` et `confidence` servent à prioriser la correction manuelle. Les prédictions brutes vides sont exportées sous la forme `[UNK]` afin de conserver des fichiers PAGE XML et JSON structurellement valides.

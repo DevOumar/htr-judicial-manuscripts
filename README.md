@@ -240,7 +240,7 @@ src/
   dataset/          chargement CATMuS/Hugging Face
   preprocessing/    deskew, CLAHE, Sauvola
   segmentation/     Kraken, crops, PAGE XML
-  htr/              helpers TrOCR training/evaluation
+  htr/              utilitaires TrOCR entraînement/évaluation
   nlp/              normalisation, tokenisation, lemmatisation, NER/POS léger
   evaluation/       CER/WER, bootstrap, GT judiciaire, audits
   export/           export dataset_nlp

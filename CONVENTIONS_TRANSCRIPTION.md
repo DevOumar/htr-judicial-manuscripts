@@ -1,57 +1,57 @@
-# Conventions De Transcription
+# Conventions de transcription
 
 ## Niveau retenu
 
 Le projet utilise une transcription semi-diplomatique.
 
-Objectif: conserver les formes graphiques utiles pour l'HTR et l'analyse historique, tout en normalisant uniquement ce qui facilite l'encodage informatique et l'evaluation.
+Objectif : conserver les formes graphiques utiles pour l'HTR et l'analyse historique, tout en normalisant uniquement ce qui facilite l'encodage informatique et l'évaluation.
 
 ## Principes
 
-- Graphie originale conservee autant que possible.
-- Abreviations conservees si elles sont visibles dans l'image.
+- Graphie originale conservée autant que possible.
+- Abréviations conservées si elles sont visibles dans l'image.
 - Pas de modernisation orthographique.
 - Pas de correction grammaticale.
-- Ponctuation conservee lorsqu'elle est lisible.
-- Casse conservee lorsque l'information est clairement lisible; sinon casse minuscule acceptee pour l'entrainement.
-- Espaces regularises pour eviter les doubles espaces artificiels.
+- Ponctuation conservée lorsqu'elle est lisible.
+- Casse conservée lorsque l'information est clairement lisible ; sinon, casse minuscule acceptée pour l'entraînement.
+- Espaces régularisés pour éviter les doubles espaces artificiels.
 
-## Abreviations
+## Abréviations
 
-Les abreviations ne sont pas developpees automatiquement.
+Les abréviations ne sont pas développées automatiquement.
 
 | Cas | Transcription |
-| --- | --- |
-| Forme abregee de "ledit" | `led.` si le point abreviatif est visible |
+|---|---|
+| Forme abrégée de "ledit" | `led.` si le point abréviatif est visible |
 | Suspension illisible | forme visible uniquement, sinon `[UNK]` |
 
-## Caracteres Speciaux Et Unicode
+## Caractères spéciaux et Unicode
 
-- Encodage: UTF-8.
-- Guillemets, accents et caracteres francais sont conserves s'ils sont presents dans la reference.
-- Les caracteres non necessaires a l'HTR peuvent etre normalises en NFC.
+- Encodage : UTF-8.
+- Guillemets, accents et caractères français sont conservés s'ils sont présents dans la référence.
+- Les caractères non nécessaires à l'HTR peuvent être normalisés en NFC.
 - Les ligatures typographiques modernes ne sont pas introduites artificiellement.
 
-## Lacunes Et Illisible
+## Lacunes et illisible
 
 | Cas | Convention |
-| --- | --- |
+|---|---|
 | Texte illisible court | `[UNK]` |
-| Lacune materielle | `[...]` |
-| Mot partiellement lisible | conserver les caracteres lisibles et signaler si necessaire avec `[UNK]` |
+| Lacune matérielle | `[...]` |
+| Mot partiellement lisible | conserver les caractères lisibles et signaler si nécessaire avec `[UNK]` |
 | Ligne non transcrivable | `[UNK]` |
 
 ## Exemples
 
 | Cas | Transcription |
-| --- | --- |
+|---|---|
 | Graphie ancienne lisible | `par devant nous` |
-| Abreviation conservee | `led. registre` |
+| Abréviation conservée | `led. registre` |
 | Lacune | `a comparu [...] devant la cour` |
 | Illisible | `[UNK]` |
 
-## Usage Dans Le Projet
+## Usage dans le projet
 
-Ces conventions s'appliquent aux transcriptions CATMuS, aux exemples de ground truth locaux et aux futures annotations manuelles du corpus Parlement de Paris.
+Ces conventions s'appliquent aux transcriptions CATMuS, aux exemples de vérité terrain locaux et aux annotations manuelles du corpus Parlement de Paris.
 
 Les sorties automatiques conservent le champ brut `prediction` et l'alias contractuel `transcription`.

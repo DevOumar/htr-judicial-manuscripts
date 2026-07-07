@@ -2,11 +2,9 @@
 
 ## Objectif
 
-L'etape NLP commence apres le HTR. Elle ne remplace pas la correction manuelle et
-ne pretend pas produire une transcription philologique parfaite. Son role est de
-rendre les transcriptions automatiques exploitables pour une analyse NLP :
+L'étape NLP commence après le HTR. Elle ne remplace pas la correction manuelle et ne prétend pas produire une transcription philologique parfaite. Son rôle est de rendre les transcriptions automatiques exploitables pour une analyse NLP :
 
-- texte normalise ;
+- texte normalisé ;
 - tokens ;
 - lemmes conservateurs ;
 - statistiques lexicales ;
@@ -41,22 +39,22 @@ python src/evaluation/validate_data_contract.py --input-dir dataset_nlp/nlp/tran
 - `outputs/nlp_correction/vocabulary_comparison.md`
 - `outputs/nlp_correction/correction_impact_report.md`
 
-## Methode
+## Méthode
 
 Le pipeline NLP actuel est volontairement simple et reproductible :
 
 1. Validation du schéma JSON.
-2. EDA sur la confiance, la longueur des lignes, `needs_review` et les abreviations residuelles.
+2. EDA sur la confiance, la longueur des lignes, `needs_review` et les abréviations résiduelles.
 3. Création déterministe des splits avec hash SHA-256.
 4. Normalisation Unicode NFC.
 5. Harmonisation des apostrophes.
-6. Developpement de certaines abreviations avec tilde.
-7. Tokenisation par expressions regulieres en conservant mots, nombres et ponctuation.
+6. Développement de certaines abréviations avec tilde.
+7. Tokenisation par expressions régulières en conservant mots, nombres et ponctuation.
 8. Lemmatisation conservatrice du français historique.
 9. Correction post-HTR prudente avec lexique et distance de Levenshtein.
-10. Rapport d'impact avant/apres correction.
+10. Rapport d'impact avant/après correction.
 
-## Ou voir la normalisation
+## Où voir la normalisation
 
 Ouvrir :
 
@@ -66,14 +64,14 @@ dataset_nlp/nlp/transcriptions_enriched.json
 
 Champs importants :
 
-- `transcription` : sortie HTR brute utilisee par le projet ;
-- `normalized_transcription` : texte harmonise en Unicode NFC ;
-- `rule_normalized_transcription` : texte apres regles NLP ;
-- `normalization_rules_applied` : regles effectivement appliquees ;
+- `transcription` : sortie HTR brute utilisée par le projet ;
+- `normalized_transcription` : texte harmonisé en Unicode NFC ;
+- `rule_normalized_transcription` : texte après règles NLP ;
+- `normalization_rules_applied` : règles effectivement appliquées ;
 - `tokens` : tokens avec offsets ;
 - `lemmas` : lemmes extraits.
 
-## Ou voir la correction post-HTR
+## Où voir la correction post-HTR
 
 Ouvrir :
 
@@ -83,16 +81,11 @@ outputs/nlp_correction/vocabulary_comparison.md
 outputs/nlp_correction/correction_impact_report.md
 ```
 
-La correction automatique est volontairement prudente. Les suggestions lexicales
-sont proposees, mais elles ne sont pas toutes appliquees automatiquement afin
-d'eviter de corriger a tort des graphies anciennes.
+La correction automatique est volontairement prudente. Les suggestions lexicales sont proposées, mais elles ne sont pas toutes appliquées automatiquement afin d'éviter de corriger à tort des graphies anciennes.
 
 ## Limites
 
 - Les lemmes sont approximatifs.
 - Les erreurs OCR se propagent dans la tokenisation et la lemmatisation.
-- La correction guidee par confiance au niveau caractere n'est pas appliquee car
-  l'export Kraken actuel fournit une confiance ligne, mais pas `char_confidences`
-  ni `candidates`.
-- Pour calculer un vrai CER/WER judiciaire avant/apres correction, il faut
-  remplir la verite terrain manuellement.
+- La correction guidée par confiance au niveau caractère n'est pas appliquée, car l'export Kraken actuel fournit une confiance ligne, mais pas `char_confidences` ni `candidates`.
+- Le vrai CER/WER judiciaire avant/après correction est calculé sur les 100 lignes de vérité terrain validées dans `data/judicial_gt/judicial_gt_annotation_with_draft.csv`.

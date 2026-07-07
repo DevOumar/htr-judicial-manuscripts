@@ -1,13 +1,12 @@
-# NLP avance : NER, POS, relations, graphe et TEI
+# NLP avancé : NER, POS, relations, graphe et TEI
 
-Cette sortie est une implementation legere et deterministe pour la soutenance.
-Elle ne pretend pas remplacer un fine-tuning CamemBERT-LoRA.
+Cette sortie est une implémentation légère et déterministe pour la soutenance. Elle ne prétend pas remplacer un fine-tuning CamemBERT-LoRA.
 
-- Lignes traitees : 247
-- Entites detectees : 106
+- Lignes traitées : 247
+- Entités détectées : 106
 - Relations extraites : 17
 
-## Entites BIO
+## Entités BIO
 
 - `DATE` : 11
 - `LOC` : 10
@@ -34,8 +33,8 @@ Elle ne pretend pas remplacer un fine-tuning CamemBERT-LoRA.
 - `tei` : `dataset_nlp\advanced\transcription_tei.xml`
 - `report` : `dataset_nlp\advanced\advanced_nlp_report.md`
 
-## Limites honnetes
+## Limites honnêtes
 
-- NER is rule-based, not CamemBERT-LoRA fine-tuned.
-- POS tags are heuristic fallback tags, not Stanza/Pie predictions.
-- Relations are deterministic proximity/rule relations.
+- Le NER est fondé sur des règles, pas sur un modèle CamemBERT-LoRA fine-tuné.
+- Les étiquettes POS sont produites par des heuristiques de secours, pas par des prédictions Stanza/Pie validées.
+- Les relations sont des relations déterministes par proximité ou par règles.
