@@ -112,7 +112,7 @@ Mais ces scores ne sont calculables que pour les lignes ou la colonne
 data/judicial_gt/judicial_gt_annotation_with_draft.csv
 ```
 
-Sur les 100 lignes judiciaires annotees, la derniere evaluation donne :
+Sur les 100 lignes judiciaires annotées, la dernière évaluation donne :
 
 - CER avant : 0.1257 ;
 - CER apres : 0.1075 ;

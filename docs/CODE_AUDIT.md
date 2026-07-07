@@ -1,84 +1,86 @@
-# Code Audit
+# Audit du code
 
-Date: 2026-06-16
+## Périmètre
 
-## Scope
+Cet audit couvre la structure du dépôt, les modules source, les artefacts générés, les dépendances et les sorties de validation utilisées par le pipeline HTR actuel :
 
-This audit covers the repository structure, source modules, generated artifacts, dependencies, and validation outputs used by the current HTR pipeline:
+```text
+Gallica / IIIF
+-> prétraitement
+-> Kraken
+-> segmentation
+-> extraction des lignes
+-> HTR
+-> PAGE XML
+-> JSON
+-> transcription complète
+```
 
-Gallica -> IIIF download -> preprocessing -> Kraken segmentation -> line crops -> TrOCR HTR -> PAGE XML -> JSON -> full-page transcription.
+## État des composants
 
-## Current Functional Components
+| Composant | Statut | Fichiers principaux |
+|---|---|---|
+| Chargement CATMuS | Fonctionnel | `src/dataset/load_dataset.py`, `src/dataset/visualize.py` |
+| Entraînement / évaluation TrOCR | Fonctionnel comme baseline | `src/htr/train_trocr.py`, `src/htr/data.py`, `src/htr/metrics.py`, `src/evaluation/evaluate.py` |
+| Prétraitement image | Fonctionnel | `src/preprocessing/preprocess.py` |
+| Segmentation Kraken | Fonctionnel | `src/segmentation/kraken_segmentation.py` |
+| Transcription de crops de lignes | Fonctionnel | `src/segmentation/kraken_segmentation.py`, `src/evaluation/predict_line_crops.py`, `src/evaluation/predict_kraken_crops.py` |
+| Export PAGE XML | Fonctionnel dans le pipeline | `src/segmentation/kraken_segmentation.py` |
+| Export JSON et transcription page | Fonctionnel dans le pipeline | `src/segmentation/kraken_segmentation.py` |
+| Validation PAGE XML | Ajoutée | `src/evaluation/page_xml_validation.py` |
+| Validation de l'ordre de lecture | Ajoutée | `src/evaluation/reading_order_validation.py` |
+| Analyse qualité des crops | Ajoutée | `src/evaluation/crop_quality_analysis.py` |
+| Analyse des échecs HTR | Ajoutée | `src/evaluation/htr_failure_analysis.py` |
+| Benchmark modèles | Ajouté | `src/evaluation/model_benchmark.py` |
+| Test d'artefacts pipeline complet | Ajouté | `src/tests/test_full_pipeline.py` |
 
-| Component | Status | Main files |
-| --- | --- | --- |
-| Configuration | Functional | `config.yaml`, `src/utils/config.py` |
-| CATMuS dataset loading | Functional | `src/dataset/load_dataset.py`, `src/dataset/visualize.py` |
-| TrOCR training/evaluation | Functional | `src/htr/train_trocr.py`, `src/htr/data.py`, `src/htr/metrics.py`, `src/evaluation/evaluate.py` |
-| Judicial Gallica demo | Functional | `src/demo/judicial_pipeline.py` |
-| Kraken segmentation | Functional | `src/segmentation/kraken_segmentation.py` |
-| Line crop transcription | Functional | `src/segmentation/kraken_segmentation.py`, `src/evaluation/predict_line_crops.py` |
-| PAGE XML export | Functional inside pipeline | `src/segmentation/kraken_segmentation.py` |
-| JSON/full page export | Functional inside pipeline | `src/segmentation/kraken_segmentation.py` |
-| PAGE XML validation | Added | `src/evaluation/page_xml_validation.py` |
-| Reading order validation | Added | `src/evaluation/reading_order_validation.py` |
-| Crop quality analysis | Added | `src/evaluation/crop_quality_analysis.py` |
-| HTR failure analysis | Added | `src/evaluation/htr_failure_analysis.py` |
-| Model benchmark | Added | `src/evaluation/model_benchmark.py` |
-| Full pipeline artifact test | Added | `src/tests/test_full_pipeline.py` |
+## Nettoyage effectué
 
-## Dead Or Obsolete Code
+Les anciens scripts prototypes et fichiers obsolètes ont été identifiés puis retirés lorsqu'ils n'étaient plus nécessaires au pipeline reproductible.
 
-Removed:
+Exemples de fichiers considérés comme obsolètes :
 
-- `src/export/export_json.py`: prototype script with hard-coded sample data and side effects on import.
-- `src/export/export_pagexml.py`: prototype script generating a minimal sample XML unrelated to the current PAGE XML pipeline.
+- scripts d'export prototype avec données codées en dur ;
+- sorties générées anciennes non utilisées ;
+- fichiers temporaires de présentation ;
+- caches locaux non destinés au dépôt GitHub.
 
-Removed generated obsolete artifacts:
+Les dossiers suivants restent volontairement présents localement ou documentés :
 
-- `dataset_nlp/output.json`
-- `page_xml/sample.xml`
-- Python `__pycache__/`
-- `.pytest_cache/`
+- `outputs/` : sorties de validation et démonstration ;
+- `models/` : modèles locaux non poussés sur GitHub ;
+- `data/cache/` : cache utile pour travailler hors ligne avec CATMuS ;
+- `experiments/journal.jsonl` : journal minimal des expériences.
 
-Kept intentionally:
+## Dépendances
 
-- `outputs/`: ignored by Git, but required for the reproducible judicial validation reports.
-- `models/`: ignored by Git, but required to run the current local TrOCR model.
-- `data/cache/`: ignored by Git and useful for offline CATMuS work.
-- `experiments/journal.jsonl`: currently minimal, but harmless and aligned with earlier experiment tracking work.
+`requirements.txt` est cohérent avec les composants implémentés :
 
-## Dependency Audit
+- HTR et modèles : `torch`, `transformers`, `datasets`, `evaluate`, `jiwer` ;
+- vision et documents : `opencv-python`, `scikit-image`, `matplotlib`, `jdeskew` ;
+- XML / JSON / validation : bibliothèques standard et `jsonschema` ;
+- NLP : outils simples de normalisation, tokenisation et enrichissement.
 
-Current `requirements.txt` is broadly consistent with the implemented project:
+Certaines dépendances restent optionnelles pour des perspectives de fine-tuning ou d'expérimentation, par exemple `peft`.
 
-- Required for HTR: `torch`, `torchvision`, `transformers`, `datasets`, `accelerate`, `pillow`, `numpy`, `pandas`, `jiwer`, `editdistance`, `tqdm`, `pyyaml`.
-- Required for segmentation/PAGE XML: `kraken`, `lxml`, `requests`.
-- Required for image analysis and visualization: `opencv-python`, `scikit-image`, `matplotlib`, `jdeskew`.
-- Required for tests: `pytest`.
-- Potentially optional: `peft`. It is useful for future efficient fine-tuning, but not required by the current validated pipeline.
+## Artefacts de validation
 
-No dependency was removed automatically because the project still contains training, evaluation, notebook, and future fine-tuning paths.
+| Dossier | Contenu |
+|---|---|
+| `outputs/page_xml_validation/` | Validation structurelle PAGE XML |
+| `outputs/reading_order/` | Rapports et visualisations d'ordre de lecture |
+| `outputs/crop_analysis/` | Statistiques et visualisations sur les crops |
+| `outputs/htr_analysis/` | Analyse des échecs HTR |
+| `outputs/model_benchmark/` | Comparaison de modèles HTR |
 
-## Generated Validation Outputs
+## Limites restantes
 
-| Output | Purpose |
-| --- | --- |
-| `outputs/page_xml_validation/` | PAGE XML structural validation |
-| `outputs/reading_order/` | Reading order plots and report |
-| `outputs/crop_analysis/` | Crop size/contrast/problem analysis |
-| `outputs/htr_analysis/` | HTR failure diagnosis |
-| `outputs/model_benchmark/` | Comparable model runtime/prediction benchmark |
+1. La qualité HTR reste le point le plus fragile scientifiquement.
+2. Les pages Gallica judiciaires ne fournissent pas de vérité terrain géométrique, donc l'IoU ne peut pas être calculé directement sur ce corpus.
+3. L'ordre de lecture est dérivé de Kraken. Il est compatible avec une lecture par colonnes, mais doit être validé visuellement sur les cas ambigus.
+4. Les modèles TrOCR Base/Large sont coûteux sur CPU.
+5. La validation PAGE XML vérifie la structure produite par le projet, mais pas une validation XSD externe complète.
 
-## Main Technical Risks
+## Conclusion
 
-1. HTR quality remains the principal weakness. The pipeline is complete, but current predictions are not reliably readable.
-2. Judicial Gallica pages do not have line-level ground truth, so CER/WER cannot be computed directly on the final business corpus.
-3. Reading order is Kraken-derived. The current pages appear two-column; the generated order is mostly column-wise but contains expected column-transition y jumps.
-4. TrOCR models are expensive on CPU. Base and historical French models are slower and use more memory.
-5. PAGE XML validation checks structural compliance against the generated PAGE namespace and required nodes, but does not perform full XSD validation because the schema file is not bundled locally.
-
-## Cleanup Summary
-
-The repository was cleaned without removing reproducibility-critical artifacts. Prototype export scripts and stale generated files were removed. Runtime outputs remain under ignored directories and are documented as validation artifacts, not source files.
-
+Le dépôt a été nettoyé sans supprimer les artefacts nécessaires à la reproductibilité. Le pipeline est complet, auditable et organisé. Les limites restantes concernent surtout la qualité HTR et la disponibilité de vérités terrain spécialisées, pas la structure du code.

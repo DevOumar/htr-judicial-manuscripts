@@ -1,109 +1,82 @@
-# Judicial Ground Truth
+# Vérité terrain judiciaire
 
-## Objective
+## Objectif
 
-Create a small Parlement de Paris ground-truth set to measure real CER/WER on the final judicial corpus.
+Créer un petit jeu de vérité terrain Parlement de Paris pour mesurer réellement le CER et le WER sur le corpus judiciaire final.
 
-This step does not train any model and does not modify the existing pipeline.
+Cette étape n'entraîne aucun modèle et ne modifie pas le pipeline existant.
 
-## Generated Files
+## Fichiers
 
-| File | Purpose |
-| --- | --- |
-| `data/judicial_gt/judicial_gt_template.csv` | Manual transcription template with 100 selected lines |
-| `data/judicial_gt/judicial_gt_annotation_with_draft.csv` | Validated assisted annotation file with Kraken prediction, correction draft, final reference and validation flag |
-| `data/judicial_gt/judicial_gt_viewer.html` | Self-contained visual aid for transcription |
-| `src/evaluation/create_judicial_gt_template.py` | Deterministic line selection |
-| `src/evaluation/create_judicial_gt_annotation_file.py` | Builds the assisted CSV without auto-filling ground truth |
-| `src/evaluation/visualize_judicial_gt.py` | HTML viewer generation |
-| `src/evaluation/evaluate_judicial_gt.py` | CER/WER evaluation after manual transcription |
+| Fichier | Rôle |
+|---|---|
+| `data/judicial_gt/judicial_gt_template.csv` | Modèle de transcription manuelle avec 100 lignes sélectionnées |
+| `data/judicial_gt/judicial_gt_annotation_with_draft.csv` | Fichier assisté validé, avec prédiction Kraken, proposition corrigée, référence finale et indicateur de validation |
+| `src/evaluation/create_judicial_gt_template.py` | Sélection déterministe des lignes |
+| `src/evaluation/create_judicial_gt_annotation_file.py` | Création du CSV assisté sans remplir automatiquement la vérité terrain |
+| `src/evaluation/visualize_judicial_gt.py` | Génération du visualiseur HTML |
+| `src/evaluation/evaluate_judicial_gt.py` | Calcul CER/WER après transcription manuelle |
 
-## CSV Format
+## Format du CSV
 
-```csv
-page_id,line_id,crop_path,reference
-```
-
-Only the `reference` column should be filled manually.
-
-The validated assisted file uses:
+Seule la colonne `reference` doit être remplie manuellement.
 
 ```csv
 page_id,line_id,order,crop_path,prediction,reference_draft,confidence,needs_review,num_corrections,reference,human_validated,notes
 ```
 
-`reference_draft` is an automatic aid produced from Kraken OCR and post-HTR
-correction rules. It is not ground truth. Copy it to `reference` only after
-checking the line image manually. Set `human_validated` to `true` when the line
-has been checked.
+`reference_draft` est une aide automatique produite à partir de la sortie Kraken OCR et des corrections post-HTR. Elle ne doit pas être considérée comme une vérité terrain. La référence finale doit être vérifiée sur l'image de ligne. Mettre `human_validated` à `true` lorsque la ligne a été contrôlée.
 
-## Selection Method
+## Sélection des lignes
 
-The template selects 100 lines from the 247 extracted Kraken line crops. The selection is deterministic and aims to cover:
+Le modèle sélectionne 100 lignes parmi les 247 crops de lignes extraits par Kraken. La sélection est déterministe et vise à couvrir :
 
-- all 5 pages;
-- different positions in reading order;
-- regular text lines;
-- some difficult low-confidence or review-needed examples;
-- no extremely tiny fragments unless needed to reach the target count.
+- les cinq pages ;
+- différentes positions de lecture ;
+- des lignes de longueurs variées ;
+- quelques exemples difficiles à faible confiance ou marqués `needs_review` ;
+- le moins possible de fragments minuscules, sauf si nécessaire pour atteindre 100 lignes.
 
-## Manual Transcription Procedure
+## Procédure
 
-1. Open:
+1. Générer le modèle :
 
-   ```text
-   data/judicial_gt/judicial_gt_viewer.html
-   ```
+```bash
+python src/evaluation/create_judicial_gt_template.py
+```
 
-2. Generate the assisted annotation file:
+2. Générer le fichier assisté :
 
-   ```bash
-   python src/evaluation/create_judicial_gt_annotation_file.py
-   ```
+```bash
+python src/evaluation/create_judicial_gt_annotation_file.py
+```
 
-3. For each line crop, enter the manual transcription in:
+3. Pour chaque crop, saisir la transcription manuelle dans :
 
-   ```text
-   data/judicial_gt/judicial_gt_annotation_with_draft.csv
-   ```
+```text
+data/judicial_gt/judicial_gt_annotation_with_draft.csv
+```
 
-4. Use `reference_draft` only as a suggestion. The final human transcription
-   must be written in `reference`.
+4. Conserver autant que possible l'orthographe originale.
 
-5. Keep the original spelling as much as possible.
+5. Marquer `human_validated` à `true` lorsque la ligne est contrôlée.
 
-6. Follow:
-
-   ```text
-   CONVENTIONS_TRANSCRIPTION.md
-   ```
-
-## Evaluation
-
-After filling some or all `reference` values:
+## Évaluation
 
 ```bash
 python src/evaluation/evaluate_judicial_gt.py --gt data/judicial_gt/judicial_gt_annotation_with_draft.csv --predictions-dir outputs/judicial_demo
 ```
 
-Outputs:
+Les lignes dont `reference` est vide sont ignorées. L'évaluation peut donc commencer avant que les 100 lignes soient toutes transcrites.
 
-- `outputs/judicial_gt_evaluation/judicial_gt_metrics.json`
-- `outputs/judicial_gt_evaluation/judicial_gt_predictions.csv`
+## État actuel
 
-Rows with an empty `reference` are ignored, so evaluation can start before all 100 lines are transcribed.
+- lignes extraites : 247 ;
+- lignes sélectionnées pour vérité terrain : 100 ;
+- références manuelles remplies et validées : 100.
 
-Current status:
+Ce fichier permet :
 
-- selected lines: 100;
-- missing predictions in assisted file: 0;
-- manual references filled and validated: 100.
-
-## Scientific Use
-
-This ground-truth set enables:
-
-- real CER/WER on Parlement de Paris;
-- fair comparison of TrOCR, PyLaia and Kraken OCR on the same lines;
-- evidence-based model selection before any new training;
-- later domain adaptation if enough manually transcribed lines are accumulated.
+- une mesure réelle du CER/WER sur le corpus Parlement de Paris ;
+- une comparaison équitable entre TrOCR, PyLaia et Kraken OCR sur les mêmes lignes ;
+- un choix de modèle fondé sur des résultats mesurés avant tout nouvel entraînement.

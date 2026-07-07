@@ -1,54 +1,40 @@
-# Data Contract
+# Contrat de données JSON
 
-## Status
+Le contrat JSON final au niveau ligne est documenté et validé par :
 
-The final line-level JSON contract is documented and validated by:
+- Schéma : `schemas/transcription_schema.json`
+- Validateur : `src/evaluation/validate_data_contract.py`
 
-- Schema: `schemas/transcription_schema.json`
-- Validator: `src/evaluation/validate_data_contract.py`
-- Output report: `outputs/data_contract_validation/data_contract_validation_report.json`
+Le contrat enrichi pour le NLP est documenté et validé par :
 
-The NLP-enriched contract is documented and validated by:
+- Schéma : `schemas/nlp_schema.json`
+- Sortie : `dataset_nlp/nlp/transcriptions_enriched.json`
 
-- Schema: `schemas/nlp_schema.json`
-- Output: `dataset_nlp/nlp/transcriptions_enriched.json`
-- Report: `dataset_nlp/nlp/nlp_report.md`
+## Champs principaux
 
-## Required Fields
+| Champ | Type | Description |
+|---|---|---|
+| `image_id` | string | Identifiant de l'image source |
+| `page_id` | string | Identifiant de la page |
+| `line_id` | string | Identifiant unique de la ligne |
+| `transcription` | string | Transcription retenue pour la ligne |
+| `confidence` | number | Estimation de confiance entre `0` et `1` |
+| `needs_review` | boolean | Indique si la ligne doit être vérifiée manuellement |
+| `polygon` | array | Polygone de la ligne dans l'image page |
+| `source_image` | string | Chemin de l'image source ou du crop |
+| `model_name` | string | Modèle HTR utilisé |
 
-Each line object must contain:
+Le champ historique `prediction` est conservé pour compatibilité et reflète le contenu de `transcription`.
 
-| Field | Type | Meaning |
-| --- | --- | --- |
-| `image_id` | string | Stable image identifier |
-| `page_id` | string | Page identifier |
-| `line_id` | string | Line identifier |
-| `transcription` | string | Final HTR text used by downstream consumers |
-| `confidence` | number | Line-level confidence estimate in `[0, 1]` |
-| `needs_review` | boolean | Manual review flag |
-| `polygon` | array | Text line polygon points |
-| `source_image` | string | Source page image used for segmentation |
-| `model_name` | string | HTR model used |
+## Champs NLP enrichis
 
-The legacy field `prediction` is retained for compatibility and mirrors `transcription`.
-
-## NLP Fields
-
-The NLP-enriched export adds:
-
-| Field | Type | Meaning |
-| --- | --- | --- |
-| `normalized_transcription` | string | NFC-normalized transcription |
-| `rule_normalized_transcription` | string | Transcription after deterministic NLP rules |
-| `normalization_rules_applied` | array | Rule names that changed the line |
-| `tokens` | array | Token records with offsets |
-| `tokens[].text` | string | Surface token |
-| `tokens[].normalized` | string | Lowercase normalized token |
-| `tokens[].lemma` | string | Conservative historical-French lemma |
-| `tokens[].type` | string | `word`, `number`, `punct`, or `unknown` |
-| `lemmas` | array | Word/number lemmas for the line |
-| `num_tokens` | integer | Token count including punctuation |
-| `num_word_tokens` | integer | Word/number token count |
+| Champ | Type | Description |
+|---|---|---|
+| `normalized_transcription` | string | Texte normalisé par règles |
+| `normalization_rules_applied` | array | Noms des règles ayant modifié la ligne |
+| `tokens` | array | Tokens avec offsets |
+| `lemmas` | array | Lemmes associés aux mots et nombres |
+| `entities` | array | Entités détectées lorsque le pipeline avancé est exécuté |
 
 ## Validation
 
@@ -58,6 +44,6 @@ python src/evaluation/validate_data_contract.py --input-dir outputs/judicial_dem
 python src/evaluation/validate_data_contract.py --input-dir dataset_nlp/nlp/transcriptions_enriched.json --schema schemas/nlp_schema.json
 ```
 
-## Notes
+## Note sur la confiance
 
-`confidence` is currently an estimated confidence, not a calibrated probability. It uses model token probabilities when available in new pipeline runs and a conservative heuristic for already-generated outputs.
+`confidence` est actuellement une estimation de confiance, pas une probabilité calibrée. Le pipeline utilise les probabilités du modèle lorsqu'elles sont disponibles. Pour les sorties plus anciennes, il applique une heuristique prudente fondée sur la longueur du texte, les répétitions, la taille du crop et le contraste.

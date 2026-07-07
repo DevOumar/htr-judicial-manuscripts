@@ -1,35 +1,46 @@
-# Judicial corpus selection
+# Sélection du corpus judiciaire
 
-The technical development corpus remains `CATMuS/medieval` and `CATMuS/medieval-segmentation`.
-The final domain demonstration uses French legal manuscript pages from Gallica.
+Le corpus technique de développement reste `CATMuS/medieval` et `CATMuS/medieval-segmentation`.
 
-## Compared sources
+Le corpus métier final est constitué de documents judiciaires ou administratifs français anciens, avec priorité aux pages complètes exploitables par Kraken.
 
-| Source | URL | Institution | Period | Image quality | Transcriptions | Legal relevance | Assessment |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| Copie de registres du Parlement de Paris, Francais 21256 | https://gallica.bnf.fr/ark:/12148/btv1b9062074w | BnF / Gallica | 1643-1644 | Full-page IIIF images, suitable for Kraken | Not available in machine-readable form | Very high: Parlement de Paris register copies | Selected for the final demo |
-| Registre du Parlement tenu a Pontoise | https://gallica.bnf.fr/ark:/12148/btv1b9063861b | BnF / Gallica | 1652 | Full-page IIIF images expected | Not available in machine-readable form | High: parlementary register | Good fallback corpus |
-| Collection de copies et extraits des registres du Parlement de Paris, principaux proces criminels | https://gallica.bnf.fr/ark:/12148/btv1b525273066 | BnF / Gallica | 17th-18th c. compilation | Full-page Gallica images | Not available in machine-readable form | High: criminal proceedings and parlementary extracts | Relevant but more heterogeneous |
-| Registres des bannieres du Chatelet de Paris, serie Y | Archives nationales, e.g. Y//9 referenced in secondary sources | Archives nationales | 1515-1546 for cited volume | Digitized access not confirmed for automated download | Not available in machine-readable form | Very high: Chatelet legal publication register | Strong subject match, but not selected because automated image access was not confirmed |
-| Inventaire du greffe de la maison consulaire de Montpellier | Municipal archives of Montpellier, manuscript II 10/II 11 | Archives municipales de Montpellier | 1662-1663 | Online full-page image access not confirmed | Later printed partial edition exists | Medium-high: greffe/administrative legal archive | Good contextual source, but not selected for reproducible download |
+## Sources comparées
 
-## Recommended corpus
+| Source | URL | Institution | Période | Qualité des images | Transcriptions | Pertinence juridique | Décision |
+|---|---|---|---|---|---|---|---|
+| Copie de registres du Parlement de Paris, Français 21256 | https://gallica.bnf.fr/ark:/12148/btv1b9062074w | BnF / Gallica | 1643-1644 | Images IIIF pleine page, adaptées à Kraken | Non disponibles en format directement exploitable | Très forte : registres du Parlement de Paris | Sélectionnée pour la démonstration finale |
+| Collection de copies et extraits des registres du Parlement de Paris, principaux procès criminels | https://gallica.bnf.fr/ark:/12148/btv1b525273066 | BnF / Gallica | XVIIe-XVIIIe siècles | Images Gallica pleine page | Non disponibles en format exploitable | Forte : procédures criminelles et extraits parlementaires | Source pertinente mais plus hétérogène |
+| Inventaire du greffe de la maison consulaire de Montpellier | Archives municipales de Montpellier, manuscrits II 10 / II 11 | Archives municipales de Montpellier | 1662-1663 | Accès image complet non confirmé | Édition partielle imprimée postérieure | Moyenne à forte : greffe et archive administrative | Non retenu pour le téléchargement reproductible |
 
-The selected corpus is BnF Francais 21256:
+## Corpus retenu
 
-- Title: Copie de registres du Parlement de Paris, years 1643-1644.
-- ARK: `btv1b9062074w`.
-- Institution: Bibliotheque nationale de France, Gallica.
-- Access: IIIF manifest at `https://gallica.bnf.fr/iiif/ark:/12148/btv1b9062074w/manifest.json`.
-- Rationale: legal domain, French manuscript pages, 17th century, full-page IIIF access, reproducible download.
+Le corpus retenu est le registre Gallica/BnF :
 
-The current demonstration downloads 5 page images and runs:
+- identifiant : `btv1b9062074w`
+- institution : Bibliothèque nationale de France / Gallica
+- type : registres judiciaires du Parlement de Paris
+- période : 1643-1644
+- accès : images IIIF
+- licence et usage : consultation académique via Gallica/BnF
+
+## Démonstration
+
+La démonstration actuelle télécharge 5 images de page et exécute :
 
 ```text
-full judicial page
--> Kraken segmentation
--> line extraction
--> TrOCR transcription
+Gallica / IIIF
+-> prétraitement
+-> Kraken
+-> segmentation
+-> extraction des lignes
+-> HTR
 -> PAGE XML
 -> JSON
+-> transcription complète
 ```
+
+Les résultats sont générés dans :
+
+- `outputs/judicial_demo/`
+
+Ce choix est le plus robuste pour le projet : il correspond au domaine juridique, les images sont accessibles de manière reproductible, et le format pleine page permet de valider le pipeline complet.

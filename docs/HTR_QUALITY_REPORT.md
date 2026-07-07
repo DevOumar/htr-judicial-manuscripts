@@ -1,93 +1,64 @@
-# HTR quality report
+# Rapport de qualité HTR
 
-## Current model status
+## État du modèle
 
-The initial `models/trocr-catmus/final` model was not a robust CATMuS model. It was produced by a very small validation run:
+Les premiers checkpoints TrOCR locaux doivent être considérés comme des checkpoints de validation du pipeline, pas comme des modèles HTR finaux robustes.
 
-- model: `microsoft/trocr-base-handwritten`
-- training data: 32 CATMuS lines
-- epochs: 1
-- steps: 16
+Le modèle `models/trocr-catmus/final` provenait d'une très petite expérimentation :
 
-It should be treated as a pipeline checkpoint, not as a strong HTR model.
+- modèle de base : `microsoft/trocr-base-handwritten` ;
+- données : petit échantillon CATMuS ;
+- objectif : vérifier que l'entraînement et l'inférence fonctionnaient.
 
-## Experiments
+Il ne doit pas être présenté comme un modèle final de haute qualité.
 
-All experiments below were run on CPU. The evaluation sample is intentionally small because generation is slow without GPU, but every model is compared on the same sample for each setting.
+## Constat expérimental
 
-### Mixed CATMuS stream
+Les expériences CPU avec peu de lignes CATMuS n'ont pas suffi à produire une transcription judiciaire lisible. Les sorties TrOCR présentaient des répétitions et des fragments peu exploitables.
 
-The first streamed rows from `CATMuS/medieval` are mostly Castilian, not French. This explains poor transfer to French judicial registers.
+Le passage à Kraken OCR avec un modèle spécialisé en manuscrits français a nettement amélioré la lisibilité.
 
-| Model | Training setup | CER | WER |
-| --- | --- | ---: | ---: |
-| `microsoft/trocr-small-handwritten` | pretrained baseline | 0.8701 | 1.3667 |
-| `models/trocr-catmus-light/final` | 128 lines, 1 epoch, low LR | 0.9121 | 1.0000 |
-| `models/trocr-catmus-improved/final` | 128 lines, 3 epochs | 0.9162 | 1.9667 |
+Modèle final utilisé pour la démonstration judiciaire :
 
-Result: no reliable CER improvement. Some fine-tuned variants produce more medieval-looking text, but they overfit and repeat common fragments.
+- Kraken OCR ;
+- `ManuMcFrenchV3.mlmodel` ;
+- modèle spécialisé pour manuscrits français ;
+- référence : `10.5281/zenodo.10874058`.
 
-### French CATMuS samples
+## Résultats judiciaires
 
-`CATMuS/medieval-samples` contains a usable French subset and is a better proxy for the final Gallica corpus.
+Évaluation sur 100 lignes du Parlement de Paris validées manuellement :
 
-| Model | Training setup | CER | WER |
-| --- | --- | ---: | ---: |
-| `microsoft/trocr-small-handwritten` | pretrained baseline | 0.6285 | 0.9722 |
-| `models/trocr-catmus-french/final` | 128 French lines, 3 epochs, full fine-tuning | 0.9135 | 1.0000 |
-| `models/trocr-catmus-french-decoder/final` | 128 French lines, 3 epochs, encoder frozen | 0.6989 | 0.9722 |
+| État | CER | WER |
+|---|---:|---:|
+| HTR brut | 13,01 % | 45,82 % |
+| Après correction post-HTR | 10,75 % | 40,11 % |
 
-Result: freezing the encoder is safer than full fine-tuning, but the pretrained baseline still has the best CER on the measured French sample.
+Ces résultats montrent une amélioration réelle après correction, mais le WER reste élevé. Les erreurs principales concernent :
 
-## Concrete examples
+- mots collés ;
+- lettres confondues ;
+- graphies anciennes ;
+- abréviations ;
+- formes absentes des lexiques modernes ;
+- erreurs de segmentation ponctuelles.
 
-| Reference | Baseline | Best fine-tuned |
-| --- | --- | --- |
-| `uement de lor ames per son exenple. mais a` | `luemeiro belosanes , " Fonevenyle nails a` | `luement de los enez.e.e.e.e.e..` |
-| `trerent molt tost dedens la celle. si esgarde` | `framework would be done to sell a illegal` | `I mererema motst messt.t.s.s.s.s.` |
-| `se leua cil ki mors estoit si prist le main dous` | `to contact humor or your respect to managing` | `totence et limous etrere perssssss` |
+## Limite principale
 
-The fine-tuned output is more domain-like but still not acceptable as readable HTR.
+Le pipeline est complet et fonctionne. La limite actuelle est la qualité du modèle HTR sur un domaine très spécifique : registres judiciaires français du XVIIe siècle.
 
-## Judicial Gallica generalization
+## Recommandation
 
-The fine-tuned French decoder model was applied to the Gallica judicial demo:
+Pour le rendu actuel :
 
-| Page | Kraken lines | Transcribed lines | Example prediction |
-| --- | ---: | ---: | --- |
-| `page_01_canvas_0021` | 50 | 1 | `ilress` |
-| `page_02_canvas_0022` | 48 | 1 | `etciones` |
-| `page_03_canvas_0023` | 51 | 1 | `etuuse` |
-| `page_04_canvas_0024` | 48 | 1 | `atssss` |
-| `page_05_canvas_0025` | 50 | 1 | `aess` |
+- présenter Kraken comme moteur HTR final ;
+- présenter TrOCR comme baseline ;
+- indiquer clairement que les corrections NLP améliorent mais ne rendent pas la transcription parfaite ;
+- utiliser les scores CER/WER mesurés sur les 100 lignes validées.
 
-Result: the segmentation and export pipeline generalizes to the judicial corpus, but the HTR model does not yet produce usable transcriptions on the Parlement de Paris pages.
+Pour améliorer encore :
 
-## Conclusion
-
-The project now has a complete and reproducible HTR pipeline, but the current CPU fine-tuning is not sufficient to improve transcription quality.
-
-The best measured CER remains the pretrained TrOCR small baseline on the French sample:
-
-- baseline CER: 0.6285
-- best fine-tuned CER: 0.6989
-
-The best fine-tuned model to keep for experimentation is:
-
-```text
-models/trocr-catmus-french-decoder/final
-```
-
-It is safer than full fine-tuning, but it should not be presented as a high-quality final HTR model.
-
-## Recommended next step
-
-To obtain genuinely readable judicial transcriptions, the next experiment should be run with:
-
-- a GPU;
-- at least several thousand French line images;
-- training/validation/test splits from `CATMuS/medieval-samples` filtered to French;
-- no full encoder fine-tuning at first;
-- CER/WER validation after each epoch;
-- manual transcription of 50-100 Parlement de Paris line crops for domain-specific validation.
-
+- augmenter la vérité terrain judiciaire ;
+- fine-tuner avec GPU ;
+- comparer PyLaia CATMuS et d'autres modèles HTR-United ;
+- entraîner ou adapter un modèle sur des lignes proches du Parlement de Paris.

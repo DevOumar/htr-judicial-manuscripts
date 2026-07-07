@@ -1,7 +1,7 @@
 # Organisation du projet
 
 Ce document distingue les fichiers sources versionnes des artefacts generes
-localement. L'objectif est de garder le depot GitHub lisible pour l'evaluation.
+localement. L'objectif est de garder le dépôt GitHub lisible pour l'évaluation.
 
 ## Dossiers sources versionnes
 
@@ -10,7 +10,7 @@ localement. L'objectif est de garder le depot GitHub lisible pour l'evaluation.
 | `src/preprocessing/` | Pretraitement image : deskew, CLAHE, binarisation Sauvola |
 | `src/segmentation/` | Segmentation Kraken, extraction de lignes, PAGE XML |
 | `src/htr/` | Baseline et fine-tuning TrOCR |
-| `src/evaluation/` | CER/WER, bootstrap, qualite crops, PAGE XML, benchmark |
+| `src/evaluation/` | CER/WER, bootstrap, qualité des crops, PAGE XML, benchmark |
 | `src/nlp/` | Normalisation, lemmatisation, correction post-HTR |
 | `src/export/` | Export JSON/PAGE XML/NLP |
 | `src/demo/` | Pipeline judiciaire reproductible |
@@ -20,7 +20,7 @@ localement. L'objectif est de garder le depot GitHub lisible pour l'evaluation.
 
 | Dossier | Contenu |
 | --- | --- |
-| `data/judicial_gt/` | 100 lignes judiciaires annotees et validees |
+| `data/judicial_gt/` | 100 lignes judiciaires annotées et validées |
 | `data/lexicons/` | Lexique juridique pour correction post-HTR |
 | `dataset_nlp/` | Export NLP leger et reproductible |
 | `dataset_nlp/advanced/` | NER/POS rule-based, graphe et TEI-XML |

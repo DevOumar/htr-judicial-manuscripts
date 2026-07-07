@@ -1,26 +1,26 @@
-# Bootstrap CER/WER
+# Évaluation bootstrap CER/WER
 
-## Status
+Les intervalles de confiance bootstrap sont implémentés dans :
 
-Bootstrap confidence intervals are implemented in `src/evaluation/bootstrap.py`.
+- `src/evaluation/bootstrap.py`
 
-The script computes:
+Le script calcule :
 
-- CER mean;
-- WER mean;
-- 95 percent bootstrap confidence interval;
-- `N=1000` resamples by default.
+- le CER moyen ;
+- le WER moyen ;
+- l'intervalle de confiance bootstrap à 95 % ;
+- le nombre d'itérations bootstrap, par défaut `N = 1000`.
 
-## Usage
+## Commande
 
 ```bash
 python src/evaluation/bootstrap.py --predictions outputs/evaluation/french_decoder_predictions.csv --output outputs/evaluation/bootstrap_cer_wer.json --n 1000
 ```
 
-## Method
+## Méthode
 
-The method resamples aligned `(reference, prediction)` pairs with replacement. For each bootstrap sample, CER and WER are recomputed. The 2.5 and 97.5 percentiles form the empirical 95 percent interval.
+La méthode ré-échantillonne avec remise les paires alignées `(référence, prédiction)`. Pour chaque échantillon bootstrap, le CER et le WER sont recalculés. Les percentiles 2,5 % et 97,5 % forment l'intervalle empirique à 95 %.
 
-## Limitation
+## Limite
 
-The current validated evaluation CSV contains only a small CATMuS test subset, so intervals are wide and should not be interpreted as final model performance.
+Lorsque le fichier d'évaluation contient peu de lignes, les intervalles sont naturellement plus larges. Les résultats doivent donc être interprétés comme une estimation expérimentale, pas comme une performance définitive du modèle sur tous les manuscrits judiciaires.

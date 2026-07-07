@@ -1,41 +1,35 @@
-# Segmentation Evaluation
+# Évaluation géométrique de la segmentation
 
-## Status
-
-Geometric IoU evaluation is implemented in:
+L'évaluation IoU géométrique est implémentée dans :
 
 - `src/evaluation/segmentation_iou.py`
 
-Output:
+## Mesure
 
-- `outputs/segmentation_iou/segmentation_iou_report.json`
-
-## Method
-
-Predicted and reference polygons are rasterized as binary masks. IoU is computed as:
+Les polygones prédits et les polygones de référence sont rasterisés sous forme de masques binaires. L'IoU est ensuite calculé ainsi :
 
 ```text
-IoU = area(intersection) / area(union)
+IoU = aire(intersection) / aire(union)
 ```
 
-## Available References
+Cette mesure permet d'évaluer la qualité géométrique d'une segmentation lorsque des polygones de référence sont disponibles.
 
-The judicial Gallica pages do not include ground-truth line polygons, so IoU cannot be computed directly on the final business corpus.
+## Limite sur le corpus judiciaire
 
-The script computes IoU only when a page output contains:
+Les pages Gallica du corpus judiciaire ne fournissent pas de polygones de vérité terrain ligne par ligne. L'IoU ne peut donc pas être calculé directement sur le corpus final Parlement de Paris.
 
-- `polygons.json`
-- `ground_truth_objects.json`
-- `segmentation_input.png`
+Le script calcule l'IoU uniquement si une sortie contient :
 
-This supports CATMuS segmentation validation when reference polygons are exposed in the loaded sample.
+- des polygones prédits ;
+- des polygones de référence comparables ;
+- une correspondance entre lignes prédites et lignes de référence.
 
-## Usage
+Cette implémentation reste utile pour valider la segmentation sur CATMuS lorsque les polygones de référence sont disponibles.
+
+## Commande
 
 ```bash
 python src/evaluation/segmentation_iou.py --input-dir outputs/segmentation
 ```
 
-## Interpretation
-
-If no comparable reference polygons are available, the report explicitly marks the page as `missing_reference` or `no_comparable_polygons`. This is a data limitation, not a pipeline failure.
+Si aucun polygone de référence comparable n'est disponible, le rapport indique explicitement `missing_reference` ou `no_comparable_polygons`. Il s'agit d'une limite des données, pas d'un échec du pipeline.

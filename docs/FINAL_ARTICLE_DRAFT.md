@@ -1,92 +1,103 @@
-# Article Scientifique - Draft
+# HTR-Judicial-Manuscripts : pipeline reproductible pour manuscrits judiciaires français
 
-## Resume
+## Résumé
 
-Ce projet developpe un pipeline de Computer Vision et HTR pour manuscrits judiciaires francais anciens. A partir de pages Gallica du Parlement de Paris, la chaine telecharge les images IIIF, applique un preprocessing documentaire, segmente les pages avec Kraken, extrait les lignes, transcrit avec TrOCR, puis exporte PAGE XML et JSON valide pour le module NLP. Le pipeline traite 5 pages, 247 lignes et produit un dataset final `dataset_nlp/`. Les experiences HTR montrent que le pipeline est complet mais que la qualite de transcription reste limitee sans ground truth judiciaire specifique.
+Ce projet développe un pipeline de Computer Vision, HTR et NLP pour des manuscrits judiciaires français anciens. À partir de pages Gallica issues des registres du Parlement de Paris, la chaîne télécharge les images via IIIF, applique un prétraitement documentaire, segmente les pages avec Kraken, extrait les lignes, transcrit avec un modèle Kraken spécialisé en manuscrits français, puis exporte les résultats en PAGE XML et JSON pour le module NLP.
 
-## Introduction
+Le pipeline traite 5 pages complètes, 247 lignes extraites automatiquement et 100 lignes validées manuellement pour l'évaluation. Sur cette vérité terrain judiciaire, le CER brut est de 13,01 % et le WER brut de 45,82 %. Après correction post-HTR, le CER descend à 10,75 % et le WER à 40,11 %.
 
-Les manuscrits judiciaires anciens sont massivement numerises mais restent peu exploitables sans transcription. L'objectif est de transformer des images de pages en donnees textuelles structurees, en conservant les coordonnees des lignes pour la verification et la reutilisation.
+## 1. Introduction
 
-## Etat De L'Art
+Les bibliothèques et services d'archives mettent en ligne de nombreux manuscrits anciens, mais ces documents restent difficiles à interroger automatiquement. Les registres judiciaires posent un problème particulier : ils contiennent une écriture manuscrite ancienne, des graphies variables, des abréviations et une mise en page complexe.
 
-Architectures considerees:
+L'objectif du projet est de produire un pipeline reproductible capable de transformer une page manuscrite numérisée en données textuelles structurées et exploitables.
 
-- TrOCR: reconnaissance ligne par ligne via Transformers.
-- Kraken: segmentation et OCR/HTR historique.
-- PyLaia: modele historique pertinent via CATMuS.
-- HTR-United/CATMuS/CREMMA: principaux reservoirs de corpus historiques.
+## 2. Données
 
-## Donnees
+Deux types de données ont été considérés.
 
-Corpus de developpement:
+Le corpus de développement est CATMuS. Il contient des lignes manuscrites historiques avec transcriptions et constitue une ressource pertinente pour un futur fine-tuning à grande échelle. Une analyse du projet estime qu'environ 56 000 lignes françaises peuvent être exploitées. Aucun entraînement massif sur ces lignes n'a toutefois été lancé dans la version actuelle.
 
-- CATMuS medieval samples, filtre francais.
+Le corpus métier principal est constitué de registres judiciaires du Parlement de Paris, disponibles via Gallica/BnF.
 
-Corpus metier:
+Informations principales :
 
-- Parlement de Paris, Gallica/BnF, manuscrit `btv1b9062074w`, 1643-1644.
+- institution : Bibliothèque nationale de France / Gallica ;
+- identifiant : `btv1b9062074w` ;
+- période : 1643-1644 ;
+- type : registres judiciaires ;
+- accès : images IIIF ;
+- pages traitées : 5 ;
+- lignes extraites : 247 ;
+- lignes validées manuellement : 100.
 
-Un template de verite terrain judiciaire de 100 lignes est fourni dans `data/judicial_gt/`.
+## 3. Méthode
 
-## Methodes
-
-Pipeline:
+Le pipeline suit les étapes suivantes :
 
 ```text
-IIIF -> preprocessing -> Kraken segmentation -> line crops -> TrOCR -> PAGE XML -> JSON -> dataset_nlp
+Gallica / IIIF
+-> prétraitement
+-> segmentation Kraken
+-> extraction des lignes
+-> HTR Kraken
+-> PAGE XML
+-> JSON
+-> correction post-HTR
+-> enrichissement NLP
 ```
 
-Preprocessing:
+Le prétraitement comprend la correction d'inclinaison, CLAHE et la binarisation adaptative Sauvola. La segmentation est réalisée avec Kraken. Les lignes extraites sont transcrites avec Kraken OCR et le modèle `ManuMcFrenchV3.mlmodel`, plus adapté aux manuscrits français historiques que les baselines TrOCR testées.
 
-- deskew;
-- CLAHE;
-- binarisation Sauvola.
+Les sorties sont produites en PAGE XML, JSON et fichiers texte de page.
 
-Segmentation:
+## 4. Évaluation
 
-- Kraken BLLA;
-- regions, lignes, baselines, polygones;
+L'évaluation HTR repose sur 100 lignes validées manuellement issues du corpus judiciaire.
+
+| État | CER | WER |
+|---|---:|---:|
+| Transcription brute | 13,01 % | 45,82 % |
+| Après correction post-HTR | 10,75 % | 40,11 % |
+
+Intervalles de confiance bootstrap à 95 % :
+
+| État | CER IC95 | WER IC95 |
+|---|---|---|
+| Brut | [11,96 %, 14,19 %] | [42,22 %, 49,58 %] |
+| Corrigé | [9,62 %, 12,05 %] | [36,34 %, 44,10 %] |
+
+## 5. NLP
+
+Le volet NLP exploite le JSON produit par le pipeline HTR. Il inclut :
+
+- normalisation linguistique ;
+- correction post-HTR ;
+- tokenisation ;
+- lemmatisation simple ;
+- entités nommées rule-based ;
+- relations simples ;
+- export TEI XML.
+
+Un scaffold CamemBERT NER est présent pour montrer le schéma BIO, l'alignement WordPiece et l'utilisation de `-100` pour les sous-tokens de continuation. Le modèle CamemBERT complet n'a pas été entraîné dans la version actuelle.
+
+## 6. Discussion
+
+Les résultats montrent que le pipeline est fonctionnel de bout en bout. La segmentation est exploitable et les exports PAGE XML / JSON permettent un traitement NLP structuré.
+
+La transcription reste cependant imparfaite. Le CER est raisonnable pour une démonstration universitaire, mais le WER reste élevé. Les erreurs principales concernent les mots collés, les graphies anciennes, les abréviations et les confusions de lettres.
+
+La correction post-HTR améliore les scores, mais ne remplace pas une validation humaine lorsqu'une transcription scientifique est attendue.
+
+## 7. Conclusion
+
+Le projet livre un pipeline complet, auditable et reproductible, du scan brut au JSON NLP. La meilleure solution actuelle repose sur Kraken OCR avec un modèle manuscrit français spécialisé. Les pistes d'amélioration principales sont l'extension de la vérité terrain judiciaire et un fine-tuning à grande échelle sur GPU avec CATMuS français et des lignes Parlement de Paris annotées.
+
+## Références indicatives
+
+- Kraken OCR.
+- Microsoft TrOCR.
+- CATMuS.
+- HTR-United.
 - PAGE XML.
-
-HTR:
-
-- baseline TrOCR Small;
-- modele local TrOCR decoder fine-tune sur petit subset CATMuS francais;
-- comparaison avec TrOCR French V5.
-
-## Resultats
-
-CATMuS French small test:
-
-| Modele | CER | WER |
-| --- | ---: | ---: |
-| TrOCR Small | 0.6285 | 0.9722 |
-| TrOCR local CATMuS decoder | 0.6989 | 0.9722 |
-| TrOCR French V5 | 1.5896 | 1.5000 |
-
-Bootstrap modele local:
-
-- CER IC95%: [0.6109, 0.7656]
-- WER IC95%: [0.9143, 1.0000]
-
-Pipeline judiciaire:
-
-- 5 pages;
-- 247 lignes;
-- 247 predictions;
-- PAGE XML valide;
-- JSON valide.
-
-## Discussion
-
-La segmentation et l'export sont robustes. La limite principale est la reconnaissance HTR: le modele local ne generalise pas suffisamment vers l'ecriture judiciaire du XVIIe siecle. Les prochaines etapes doivent prioriser la constitution d'un ground truth Parlement de Paris et le test de PyLaia CATMuS/Kraken OCR avant tout nouvel entrainement lourd.
-
-## Reproductibilite
-
-Les commandes de reproduction sont dans `README.md`. Les configurations sont dans `config.yaml` et les sorties de validation dans `outputs/`.
-
-## Conclusion
-
-Le projet livre un pipeline complet et auditable du scan brut au JSON NLP. Les transcriptions automatiques sont fonctionnelles mais doivent etre corrigees ou ameliorees par adaptation de domaine pour atteindre un niveau paleographique exploitable.
-
+- Bibliothèque nationale de France, Gallica.

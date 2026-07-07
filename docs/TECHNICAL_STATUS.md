@@ -1,212 +1,224 @@
-# Technical Status
+# État technique final
 
-Date: 2026-06-17
+## Pipeline validé
 
-## What Works
+Le pipeline judiciaire complet est opérationnel :
 
-The complete judicial pipeline is operational:
+```text
+Gallica / IIIF
+-> téléchargement
+-> prétraitement
+-> Kraken
+-> segmentation
+-> extraction des lignes
+-> HTR
+-> PAGE XML
+-> JSON
+-> transcription complète
+-> NLP
+```
 
-Gallica -> IIIF download -> preprocessing/resizing -> Kraken segmentation -> line extraction -> Kraken OCR / TrOCR baseline -> PAGE XML -> JSON -> full-page transcription.
+## Corpus traité
 
-Current judicial demo:
+- Corpus final : registres judiciaires du Parlement de Paris, Gallica/BnF.
+- Identifiant : `btv1b9062074w`.
+- Période : 1643-1644.
+- Pages traitées : 5.
+- Lignes extraites : 247.
+- Lignes transcrites dans l'export final : 247.
+- Lignes validées manuellement pour l'évaluation : 100.
 
-- Pages processed: 5
-- Extracted lines: 247
-- Transcribed lines: 247 in the final export
-- Kraken raw non-empty predictions: 245/247
-- Final PAGE XML Unicode nodes: 247/247, with `[UNK]` for the two empty raw OCR outputs
-- Kraken OCR total transcription time: 18.69 s
-- Kraken OCR average transcription time: 0.0757 s/line
+Les sorties principales sont dans :
 
-Each page contains:
+- `outputs/judicial_demo/`
+- `data/judicial_gt/judicial_gt_annotation_with_draft.csv`
+- `dataset_nlp/`
 
-- `original.png`
-- `segmentation_input.png`
-- `annotated.png`
-- `polygons.json`
-- `lines/*.png`
-- `transcriptions.json`
-- `full_page_transcription.txt`
-- `page.xml`
-- `segmentation_report.json`
+## HTR
 
-Additional Kraken OCR outputs:
+Le moteur HTR final retenu pour la démonstration judiciaire est :
 
-- `outputs/kraken_ocr_judicial/kraken_predictions.json`
-- `outputs/kraken_ocr_judicial/kraken_predictions.csv`
-- `outputs/kraken_ocr_judicial/*/transcriptions_kraken.json`
-- `outputs/kraken_ocr_judicial/*/full_page_transcription_kraken.txt`
+- Kraken OCR ;
+- modèle `ManuMcFrenchV3.mlmodel` ;
+- référence modèle : `10.5281/zenodo.10874058`.
 
-## NLP Enrichment
+TrOCR est conservé comme baseline et comme piste de fine-tuning, mais les sorties judiciaires finales utilisent Kraken, car les résultats sont plus lisibles sur l'écriture française historique.
 
-Output: `dataset_nlp/nlp/`
+## Résultats HTR
 
-The downstream NLP step is now implemented:
+Évaluation sur les 100 lignes judiciaires validées :
 
-- normalized line transcription;
-- regex tokenization;
-- conservative historical-French lemmatization;
-- per-line token and lemma arrays;
-- corpus-level lexical statistics.
-- deterministic train/validation/test splits;
-- SHA-256 hashes for reproducibility.
-- lexicon-based post-HTR correction suggestions;
-- raw vs corrected vocabulary comparison;
-- CER/WER before/after correction evaluation hook.
+| État | CER | WER |
+|---|---:|---:|
+| Transcription brute | 13,01 % | 45,82 % |
+| Après correction post-HTR | 10,75 % | 40,11 % |
 
-Latest local run:
+Intervalles de confiance bootstrap à 95 % :
 
-- Lines: 247
-- Word/number tokens: 1803
-- Unique tokens: 923
-- Unique lemmas: 897
-- Lines marked `needs_review`: 21
-- Mean confidence: 0.9477
-- NLP split rows: train 171, validation 35, test 41
-- NLP test SHA-256: `1b83c6cee55fad98f160b3ce6475c765c7ebbdb54e9642891acce1e04bf1bfe0`
-- Correction suggestions: 466
-- Automatic cautious corrections applied: 75
-- Lines modified by post-HTR correction: 53
-- Glued legal terms corrected: `justicemoyenne` -> `justice moyenne`, `bassesustce` -> `basse justice`
-- Judicial validated GT lines: 100
-- Judicial Kraken CER/WER: 0.1301 / 0.4582
-- Post-HTR corrected CER/WER: 0.1075 / 0.4011
+| État | CER IC95 | WER IC95 |
+|---|---|---|
+| Brut | [11,96 %, 14,19 %] | [42,22 %, 49,58 %] |
+| Corrigé | [9,62 %, 12,05 %] | [36,34 %, 44,10 %] |
 
-Validation:
+Temps moyen de transcription :
 
-- `schemas/nlp_schema.json`: valid for `dataset_nlp/nlp/transcriptions_enriched.json`
-- Tests include NLP tokenization and lemmatization checks.
-- `docs/NLP_REQUIREMENTS_AUDIT.md` maps the NLP PDF requirements to repository artifacts.
-- `docs/POST_HTR_CORRECTION.md` documents lexicon correction and before/after impact evaluation.
-- `docs/ADVANCED_NLP_PRESENTATION.md` documents rule-based BIO NER, POS, relations, graph export and TEI-XML.
-- `src/nlp/ner_training.py` documents the CamemBERT NER scaffold, WordPiece label alignment with `-100`, and seqeval-like F1.
-- `data/ner/bio_sample.csv` contains 224 BIO-annotated tokens for the minimal NER training/evaluation sample.
-- `outputs/judicial_gt_evaluation/final_judicial_evaluation_report.md` summarizes final CER/WER and bootstrap intervals.
+- environ `0,0757 s` par ligne.
 
-## PAGE XML Validation
+Confiance moyenne estimée :
 
-Output: `outputs/page_xml_validation_kraken/`
+- environ `0,9477`.
 
-Validated on the 5 judicial pages:
+Cette confiance est une estimation de tri, pas une accuracy calibrée.
 
-- Valid pages: 5/5
-- TextLine count: 247
-- Unicode count: 247
-- Required `Coords`: present
-- Required `Baseline`: present
-- Required `TextEquiv/Unicode`: present
-- TextLine nesting in TextRegion: valid
+## PAGE XML
 
-The XML is structurally consistent with the PAGE XML namespace used by the project. Full external XSD validation is not included yet.
+Les fichiers PAGE XML générés contiennent :
 
-## Reading Order
+- les régions ;
+- les lignes ;
+- les coordonnées ;
+- les baselines ;
+- les transcriptions dans `TextLine/TextEquiv/Unicode`.
 
-Output: `outputs/reading_order/`
+Validation sur les 5 pages :
 
-Findings:
+- lignes Unicode présentes : 247 / 247 ;
+- structure PAGE XML cohérente avec le namespace utilisé par le projet ;
+- validation XSD externe complète non incluse localement.
 
-- Pages analyzed: 5
-- Lines analyzed: 247
-- Pages with backward y jumps: 5
-- Pages likely multicolumn by heuristic: 0
+## Ordre de lecture
 
-Interpretation: the backward y jumps correspond to the transition from the left column to the right column. The order is compatible with a column-wise reading sequence, but this remains a heuristic validation and should be visually checked using the generated plots.
+Le pipeline reconstruit les pages selon l'ordre de lecture fourni ou déduit par Kraken. Les pages étudiées comportent des effets de colonnes. Les visualisations dans `outputs/reading_order/` permettent de vérifier les transitions.
 
-## Crop Quality
+Interprétation :
 
-Output: `outputs/crop_analysis/`
+- l'ordre est compatible avec une lecture par colonnes ;
+- certains sauts verticaux correspondent au passage d'une colonne à l'autre ;
+- une validation visuelle reste nécessaire pour les cas ambigus.
 
-Findings:
+## Qualité des crops
 
-- Crops analyzed: 247
-- Mean width: 411.3 px
-- Median width: 456.0 px
-- Mean height: 36.5 px
-- Median height: 36.0 px
-- Mean contrast: 34.9
-- Empty-like crops: 0
-- Too-small crops: 21
-- Possibly truncated crops: 0
+L'analyse des crops est disponible dans :
 
-Interpretation: segmentation is generally usable. The most visible crop issue is very small marginal or short lines, which can degrade HTR predictions.
+- `outputs/crop_analysis/`
 
-## HTR Failure Diagnosis And Rescue
+Elle mesure notamment :
 
-Output: `outputs/htr_analysis/`
+- largeur moyenne ;
+- hauteur moyenne ;
+- contraste ;
+- lignes très petites ;
+- lignes potentiellement vides ;
+- lignes tronquées ;
+- répétitions suspectes.
 
-Findings:
+Ces informations aident à diagnostiquer les erreurs HTR.
 
-- Lines analyzed: 247
-- Suspicious predictions: 165
-- Empty predictions: 0
-- Lines with repeated character runs: 122
-- Mean prediction length: 24.8 characters
+## NLP
 
-Initial TrOCR diagnosis:
+Le pipeline NLP est présent et séparé dans :
 
-- The current local TrOCR model is not sufficiently adapted to seventeenth-century judicial handwriting.
-- Many failures show repeated characters or repeated pseudo-words, for example `lasssss`, `dessssss`, `a man`.
-- The domain shift from CATMuS to Parlement de Paris remains large.
-- Direct CER/WER cannot be computed on Gallica judicial pages without ground truth.
+- `src/nlp/`
 
-Rescue action completed:
+Il produit :
 
-- A relevant Kraken recognition model was identified and downloaded: `10.5281/zenodo.10874058`, `ManuMcFrenchV3.mlmodel`.
-- The project now includes `src/evaluation/predict_kraken_crops.py` to transcribe every extracted line crop with Kraken OCR.
-- The final `dataset_nlp/` export uses Kraken predictions through `--htr-source kraken`.
-- The qualitative output is substantially more readable than the local TrOCR outputs, although it still requires manual correction for scholarly use.
+- normalisation linguistique ;
+- correction post-HTR ;
+- tokens ;
+- lemmes ;
+- entités rule-based ;
+- relations simples ;
+- export TEI XML ;
+- graphe de relations.
 
-## Model Benchmark
+Les fichiers importants sont :
 
-Output: `outputs/model_benchmark/`
+- `CONVENTIONS_NLP.md`
+- `docs/NLP_PIPELINE.md`
+- `docs/POST_HTR_CORRECTION.md`
+- `docs/ADVANCED_NLP_PRESENTATION.md`
+- `dataset_nlp/advanced/transcription_tei.xml`
 
-Benchmark constraints:
+Le projet contient aussi :
 
-- Same 3 judicial line crops used for all tested models.
-- CPU execution.
-- `local_files_only=True`, no network downloads during validation.
-- CER/WER reused from prior CATMuS evaluations when available.
+- `src/nlp/ner_training.py` : scaffold CamemBERT NER ;
+- `data/ner/bio_sample.csv` : 224 tokens annotés BIO ;
+- alignement WordPiece avec `-100` documenté dans le code.
 
-| Model | CATMuS CER | CATMuS WER | Judicial avg sec/line | Result |
-| --- | ---: | ---: | ---: | --- |
-| `microsoft/trocr-small-handwritten` | 0.6285 | 0.9722 | 1.38 | Fast but English-biased output |
-| `dj0w/trocr-french-handwriting-v5` | 1.5896 | 1.5000 | 8.80 | More French-looking but too weak/slow here |
-| `models/trocr-catmus-french-decoder/final` | 0.6989 | 0.9722 | 1.34 | Local baseline, still poor on judicial pages |
-| `microsoft/trocr-base-handwritten` | N/A | N/A | 6.19 | Heavier, English-biased output |
-| Kraken `ManuMcFrenchV3.mlmodel` | N/A | N/A | 0.0757 | Best current judicial transcription quality |
+Important : le projet ne prétend pas avoir entraîné un modèle CamemBERT final. Le NER avancé est un scaffold et une démonstration rule-based.
 
-Skipped:
+## Correction post-HTR
 
-- `microsoft/trocr-large-handwritten`: too heavy for routine CPU validation.
-- `johnlockejrr/pylaia_catmus_medieval`: not directly exploitable through Transformers/TrOCR in this environment.
+La correction post-HTR traite notamment :
 
-Recommendation: keep Kraken `ManuMcFrenchV3.mlmodel` as the current final HTR engine, keep TrOCR as a baseline, and measure true CER/WER once the judicial ground truth file is filled.
+- confusions fréquentes de caractères ;
+- mots collés ;
+- formes judiciaires fréquentes ;
+- normalisation prudente.
 
-## What Does Not Work Well
+Exemple :
 
-- Transcriptions are improved and readable in places, but not yet presentation-quality.
-- No judicial ground truth exists in the current demo, so final-domain CER/WER is unavailable.
-- PAGE XML full XSD validation is not yet implemented.
+```text
+touse justicemoyenne
+-> toute justice moyenne
+```
 
-## What Is Validated
+La correction améliore les scores mesurés, mais ne remplace pas une transcription paléographique humaine.
 
-- Full pipeline artifacts exist for 5 pages.
-- All 247 extracted lines have final exported transcriptions.
-- Full-page transcription files are generated.
-- PAGE XML contains all line transcriptions.
-- JSON outputs contain all line predictions.
-- NLP-enriched JSON contains normalized text, tokens and lemmas.
-- Diagnostic reports are generated for PAGE XML, reading order, crops, HTR failures, and model comparison.
+## Tests
 
-## Remaining Improvements
+Les vérifications principales sont :
 
-1. Fill judicial line-level ground truth for at least 30-100 lines to measure real CER/WER.
-2. Fine-tune on several thousand French historical lines with GPU if Kraken quality remains insufficient after manual evaluation.
-3. Compare PyLaia CATMuS and additional HTR-United models when a reliable local inference path is available.
-4. Add optional PAGE XML XSD validation.
-5. Improve column/reading-order validation with explicit PAGE `ReadingOrder` metadata.
-6. Filter or tag very small marginal crops before HTR.
+```bash
+python -m compileall src
+python -m pytest
+```
 
-## Final Assessment
+Dernier état connu :
 
-The project is technically coherent, reproducible, and suitable for a university demonstration of a complete HTR + downstream NLP pipeline. The engineering pipeline is validated, and the HTR quality has been improved by switching the final judicial transcription from the weak TrOCR baseline to a relevant Kraken French manuscript model. The remaining scientific limitation is the absence of manual judicial ground truth for final CER/WER.
+- 17 tests passants.
+
+Les tests couvrent notamment :
+
+- contrat JSON ;
+- normalisation ;
+- correction post-HTR ;
+- tokenisation / lemmatisation ;
+- structure des artefacts du pipeline.
+
+## Ce qui fonctionne
+
+- Téléchargement IIIF Gallica.
+- Prétraitement image.
+- Segmentation Kraken.
+- Extraction de lignes.
+- Transcription HTR de toutes les lignes.
+- PAGE XML enrichi avec transcriptions.
+- JSON final exploitable.
+- Vérité terrain judiciaire de 100 lignes.
+- Calcul CER/WER.
+- Intervalles bootstrap.
+- Correction post-HTR.
+- Enrichissement NLP.
+- Export TEI XML.
+- Tests automatisés.
+
+## Ce qui reste limité
+
+- La transcription reste imparfaite pour un usage paléographique strict.
+- Le WER reste élevé, car les mots collés, graphies anciennes et abréviations sont difficiles.
+- L'IoU ne peut pas être calculé sur les pages Gallica sans polygones de référence.
+- Le fine-tuning massif sur CATMuS n'a pas été lancé.
+- Le NER CamemBERT complet est préparé mais non entraîné.
+
+## Recommandations
+
+1. Conserver Kraken `ManuMcFrenchV3.mlmodel` comme moteur HTR final actuel.
+2. Conserver TrOCR comme baseline et piste future.
+3. Utiliser les 100 lignes judiciaires validées comme base d'évaluation scientifique.
+4. Étendre progressivement la vérité terrain à plus de lignes si l'objectif devient la qualité HTR.
+5. Lancer un fine-tuning sur CATMuS ou sur des lignes judiciaires annotées uniquement si un GPU est disponible.
+
+## Conclusion
+
+Le projet est techniquement cohérent, reproductible et soutenable pour une démonstration universitaire complète CV + HTR + NLP. Le pipeline est validé de bout en bout. La principale limite restante est la qualité intrinsèque de la transcription automatique sur des manuscrits judiciaires anciens, malgré l'amélioration obtenue par le modèle Kraken spécialisé et les corrections post-HTR.

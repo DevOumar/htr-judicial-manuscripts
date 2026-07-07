@@ -1,122 +1,73 @@
-# HTR improvement strategy
+# Stratégie d'amélioration HTR
 
-## Goal
+## Constat
 
-The project pipeline is validated. The limiting factor is now HTR quality. The objective is to obtain readable transcriptions on French historical manuscripts and then transfer as far as possible to judicial registers from Gallica.
+Le pipeline complet est validé. Le facteur limitant n'est plus l'orchestration Gallica, Kraken, PAGE XML ou JSON. Le facteur limitant est la qualité de transcription HTR sur les registres judiciaires français anciens.
 
-## Best available corpora
+## Corpus et modèles considérés
 
-| Corpus | URL | Lines | French lines | Period/domain | License | Fit for this project |
-| --- | --- | ---: | ---: | --- | --- | --- |
-| CATMuS medieval | https://huggingface.co/datasets/CATMuS/medieval | 194,808 | 56,048 verified from Parquet metadata | Medieval historical manuscripts, Romance/Latin, includes French | cc-by-4.0 | Best primary training corpus for historical French HTR |
-| CATMuS medieval samples | https://huggingface.co/datasets/CATMuS/medieval-samples | 2,060 | French majority in sample stream; exact full count not required for serious training | Sample subset of CATMuS | dataset card has no explicit license field in local metadata; parent CATMuS is cc-by-4.0 | Good for CPU tests, not enough for final quality |
-| TRIDIS | https://huggingface.co/datasets/magistermilitum/Tridis | 197k | French included; exact count not locally verified because remote column scan was too slow | Multilingual historical HTR, includes French examples from HIMANIS/HOME | MIT | Strong secondary corpus, especially if filtered to French/cursive/legal-administrative corpora |
-| RIMES-based TrOCR French | https://huggingface.co/dj0w/trocr-french-handwriting-v5 | model, not corpus | modern French handwriting | Modern French handwriting, not historical | MIT | Best TrOCR-compatible pretrained French baseline, but not domain-specific |
-| PyLaia CATMuS medieval | https://huggingface.co/johnlockejrr/pylaia_catmus_medieval | model trained on CATMuS/medieval | multilingual historical | Historical Latin/Romance manuscripts | MIT | Best historical pretrained model candidate, but PyLaia not TrOCR |
+| Ressource | Type | Taille / intérêt | Licence | Rôle dans le projet |
+|---|---|---:|---|---|
+| `CATMuS/medieval` | Dataset HTR historique | 194 808 lignes, dont environ 56 048 lignes françaises estimées | CC-BY-4.0 | Corpus de développement et piste de fine-tuning |
+| `CATMuS/medieval-samples` | Sous-échantillon | 2 060 lignes | alignée avec CATMuS | Tests CPU rapides |
+| `dj0w/trocr-french-handwriting-v5` | Modèle TrOCR français moderne | modèle, pas corpus | MIT | Baseline française compatible TrOCR |
+| `johnlockejrr/pylaia_catmus_medieval` | Modèle PyLaia historique | entraîné sur CATMuS | MIT | Candidat externe très pertinent |
+| Kraken `ManuMcFrenchV3.mlmodel` | Modèle Kraken manuscrits français | spécialisé manuscrits français | Zenodo | Moteur final actuel |
 
-## CATMuS French estimate
+## Pourquoi le fine-tuning CPU n'a pas suffi
 
-French lines in `CATMuS/medieval` were estimated by reading Parquet metadata for files named `L-Fre.*.parquet`, without downloading image data.
+Les expériences locales ont utilisé de petits échantillons et une exécution CPU. Dans ces conditions, le fine-tuning TrOCR a vite produit des sorties instables ou répétitives. Cela valide le pipeline d'entraînement, mais ne suffit pas à produire un modèle HTR robuste.
 
-| Split | French lines |
-| --- | ---: |
-| train | 49,201 |
-| dev/validation | 2,712 |
-| test | 4,135 |
-| total | 56,048 |
+Un entraînement sérieux nécessiterait :
 
-By century:
+- plusieurs milliers de lignes ;
+- un GPU ;
+- des splits train / validation / test propres ;
+- un suivi des checkpoints ;
+- une sélection du meilleur modèle sur CER validation.
 
-| Century | French lines |
-| --- | ---: |
-| 12 | 291 |
-| 13 | 21,576 |
-| 14 | 9,455 |
-| 15 | 19,965 |
-| 16 | 4,761 |
+## Plan d'entraînement sérieux
 
-There is no strong 17th-century French HTR set in CATMuS, but the 15th-16th c. French material is the closest available training signal for the Parlement de Paris demo.
+Si un GPU est disponible, le plan recommandé est :
 
-## Existing pretrained models
+- corpus : CATMuS français filtré ;
+- taille minimale : 10 000 lignes ;
+- taille cible : jusqu'à 56 000 lignes françaises ;
+- modèle de départ : `dj0w/trocr-french-handwriting-v5` ou `microsoft/trocr-small-handwritten` ;
+- epochs : environ 10 avec early stopping ;
+- métrique de sélection : CER validation ;
+- évaluation finale : test CATMuS + vérité terrain Parlement de Paris.
 
-### TrOCR French Handwriting V5
+## Gains attendus
 
-`dj0w/trocr-french-handwriting-v5` is a TrOCR model fine-tuned from `microsoft/trocr-base-handwritten` on RIMES and custom French handwriting. The model card reports CER 0.20% and WER 1.04% on its validation set, but this is modern French handwriting, not historical judicial script.
+Sur CPU :
 
-Use it as a strong French TrOCR baseline before training from `microsoft/trocr-small-handwritten`.
+- amélioration limitée ;
+- utile pour vérifier le code ;
+- insuffisant pour une transcription finale de qualité.
 
-### PyLaia CATMuS medieval
+Sur GPU avec 10 000 lignes françaises :
 
-`johnlockejrr/pylaia_catmus_medieval` is trained on CATMuS/medieval for Latin/Romance historical HTR. It is likely the strongest historical manuscript baseline, but it is not directly TrOCR and requires a PyLaia inference path.
+- baisse probable du CER sur données proches ;
+- meilleure stabilité ;
+- gain incertain sur Parlement de Paris si le style d'écriture reste différent.
 
-Use it as an external comparator if time allows.
+Sur GPU avec CATMuS français + lignes judiciaires transcrites manuellement :
 
-## Why CPU fine-tuning failed
+- meilleure perspective d'adaptation au domaine ;
+- gain plus crédible sur les registres judiciaires ;
+- besoin d'une vérité terrain judiciaire plus grande.
 
-The local experiments used only 128 lines and CPU training. Full fine-tuning quickly overfit and produced repeated fragments. Freezing the encoder was safer but still did not beat the pretrained baseline on CER.
+## Choix actuel
 
-Measured French sample:
+Pour la version actuelle, le meilleur compromis est :
 
-| Model | CER | WER |
-| --- | ---: | ---: |
-| `microsoft/trocr-small-handwritten` | 0.6285 | 0.9722 |
-| local French full fine-tuning, 128 lines | 0.9135 | 1.0000 |
-| local French decoder-only fine-tuning, 128 lines | 0.6989 | 0.9722 |
+1. utiliser Kraken `ManuMcFrenchV3.mlmodel` comme moteur HTR final ;
+2. garder TrOCR comme baseline ;
+3. mesurer CER/WER sur les 100 lignes judiciaires validées ;
+4. appliquer une correction post-HTR prudente ;
+5. documenter CATMuS comme perspective de fine-tuning à grande échelle.
 
-Conclusion: CPU experiments are useful for validating code and hyperparameters, not for final quality.
+## Conclusion
 
-## Serious training plan
-
-Use `config_htr_catmus_french_serious.yaml` on GPU.
-
-Recommended first GPU run:
-
-- corpus: `CATMuS/medieval`, French only;
-- train: 10,000 lines;
-- validation: 1,000 lines;
-- test: 1,000 lines;
-- base model: `dj0w/trocr-french-handwriting-v5` first, then compare with `microsoft/trocr-small-handwritten`;
-- freeze encoder for the first run;
-- LR: `1e-5`;
-- epochs: 10 with early stopping;
-- batch size: 8, gradient accumulation 2;
-- eval/save every 500 steps;
-- metrics: CER/WER every epoch/checkpoint;
-- keep best checkpoint by validation CER.
-
-Second GPU run:
-
-- unfreeze the last 2-4 encoder layers only;
-- keep lower LR (`5e-6` to `1e-5`);
-- train on 20k-50k French CATMuS lines if storage allows.
-
-## Expected gains
-
-On CPU:
-
-- realistic gain: small or none;
-- goal: verify code, not quality;
-- expected CER on historical French: still around 0.6-0.9 on difficult samples.
-
-On GPU with 10k French lines:
-
-- realistic target CER: 0.25-0.45 on CATMuS French validation;
-- WER likely remains high on medieval abbreviations but should improve visibly;
-- judicial Gallica pages may still be worse because of domain and century shift.
-
-On GPU with 50k French lines plus 50-100 manually transcribed Parlement lines:
-
-- realistic target CER: 0.15-0.30 on similar historical French lines;
-- judicial demo should become visibly more readable;
-- best result requires domain-specific line ground truth from the Gallica registers.
-
-## Final recommendation
-
-For the final project, use three HTR baselines:
-
-1. `microsoft/trocr-small-handwritten`: generic baseline.
-2. `dj0w/trocr-french-handwriting-v5`: best TrOCR-compatible French pretrained baseline.
-3. GPU fine-tuned TrOCR on CATMuS French: project model.
-
-If time is short, prioritize evaluating `dj0w/trocr-french-handwriting-v5` on the judicial demo before running a long GPU fine-tune.
-
+La voie la plus réaliste pour améliorer fortement la qualité est une adaptation de domaine avec GPU et davantage de vérité terrain judiciaire. Sans GPU, le projet doit privilégier un modèle historique déjà spécialisé, ce qui justifie le choix actuel de Kraken.

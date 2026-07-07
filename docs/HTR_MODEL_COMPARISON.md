@@ -1,93 +1,47 @@
-# HTR model comparison
+# Comparaison des modèles HTR
 
-## Objective
+## Objectif
 
-Compare the best available HTR starting points before launching a long fine-tuning run.
+Comparer les moteurs HTR envisagés pour transcrire les registres judiciaires du Parlement de Paris.
 
-Models tested:
+## Modèles étudiés
 
-- `microsoft/trocr-small-handwritten`
-- `dj0w/trocr-french-handwriting-v5`
-- `models/trocr-catmus-french-decoder/final`
-- `johnlockejrr/pylaia_catmus_medieval` checked but not executed
+| Modèle | Type | Avantages | Limites | Décision |
+|---|---|---|---|---|
+| `microsoft/trocr-small-handwritten` | TrOCR générique | Facile à intégrer, rapide | Entraîné surtout sur écriture moderne anglophone | Baseline |
+| `microsoft/trocr-base-handwritten` | TrOCR générique plus lourd | Plus grande capacité | Lent sur CPU, pas spécialisé ancien français | Baseline secondaire |
+| `dj0w/trocr-french-handwriting-v5` | TrOCR français moderne | Français, compatible Hugging Face | Écriture moderne, transfert faible vers manuscrits judiciaires anciens | Point de départ possible, pas final |
+| `johnlockejrr/pylaia_catmus_medieval` | PyLaia historique | Entraîné sur CATMuS, domaine historique | Pas compatible directement avec TrOCRProcessor | Candidat futur sérieux |
+| Kraken `ManuMcFrenchV3.mlmodel` | Kraken OCR historique français | Spécialisé manuscrits français, intégré au pipeline | Nécessite backend Kraken | Moteur final actuel |
 
-## Test data
+## Résultat principal
 
-### CATMuS French
+Les modèles TrOCR testés localement ne suffisent pas à obtenir une transcription judiciaire lisible sans fine-tuning sérieux. Le meilleur choix pratique pour la démonstration actuelle est Kraken OCR avec `ManuMcFrenchV3.mlmodel`.
 
-All TrOCR models were evaluated on the same 4 French CATMuS line images from the configured test split.
+## Évaluation judiciaire
 
-### Parlement de Paris
+L'évaluation finale repose sur les mêmes 100 lignes judiciaires validées manuellement.
 
-All TrOCR models were also run on the same 5 segmented line crops from the Gallica Parlement de Paris demo.
+| Système | CER | WER |
+|---|---:|---:|
+| Kraken brut | 13,01 % | 45,82 % |
+| Kraken + correction post-HTR | 10,75 % | 40,11 % |
 
-There is no ground truth transcription for these Gallica lines, so CER/WER cannot be computed for the Parlement set. The comparison is qualitative only.
+## PyLaia CATMuS
 
-## CATMuS French quantitative results
+Le modèle `johnlockejrr/pylaia_catmus_medieval` reste très pertinent car il est entraîné sur CATMuS/medieval. Il n'a pas été intégré comme moteur final car :
 
-| Model | CER | WER | Notes |
-| --- | ---: | ---: | --- |
-| `microsoft/trocr-small-handwritten` | 0.6285 | 0.9722 | Best measured CER on historical French sample |
-| `models/trocr-catmus-french-decoder/final` | 0.6989 | 0.9722 | Local 128-line French decoder-only fine-tune; safer than full fine-tune but worse than baseline CER |
-| `dj0w/trocr-french-handwriting-v5` | 1.5896 | 1.5000 | Strong modern French handwriting model, poor transfer to medieval CATMuS sample |
+- ce n'est pas un modèle Hugging Face `VisionEncoderDecoderModel` ;
+- les fichiers sont au format PyLaia ;
+- il faut ajouter un backend d'inférence séparé ;
+- la normalisation image et le décodage doivent correspondre au modèle.
 
-## CATMuS French examples
+## Recommandation
 
-| Reference | TrOCR small | TrOCR French V5 | Local French decoder |
-| --- | --- | --- | --- |
-| `uement de lor ames per son exenple. mais a` | `luemeiro belosanes , " Fonevenyle nails a` | `in respectful latest look reflects a resulting Alexander succeeded NewDA taking mis a` | `luement de los enez.e.e.e.e.e..` |
-| `trerent molt tost dedens la celle. si esgarde` | `framework would be done to sell a illegal` | `used Global hand redirected conclusion prescription Mr longfP happy civilian Seoul experience 43` | `I mererema motst messt.t.s.s.s.s.` |
-| `se leua cil ki mors estoit si prist le main dous` | `to contact humor or your respect to managing` | `games instead new New used once infections giving album Rights do undergraduate killing fewer once killing Stoneest 27` | `totence et limous etrere perssssss` |
+Pour la version actuelle :
 
-## Parlement de Paris qualitative results
-
-Same 5 segmented line crops, no ground truth available.
-
-| Page | TrOCR small | TrOCR French V5 | Local French decoder |
-| --- | --- | --- | --- |
-| page 01 | `illness .` | `Aouse` | `ilress` |
-| page 02 | `whenever` | `Aouse` | `etciones` |
-| page 03 | `witness .` | `Aonse` | `etuuse` |
-| page 04 | `illnesses .` | `cloust.` | `atssss` |
-| page 05 | `thoms .` | `A'ones` | `aess` |
-
-None of these outputs is good enough for final readable judicial transcription.
-
-## PyLaia CATMuS model
-
-`johnlockejrr/pylaia_catmus_medieval` is a relevant historical HTR model trained on CATMuS/medieval. It was not executed in the current pipeline because:
-
-- it is a PyLaia model, not a HuggingFace `VisionEncoderDecoderModel`;
-- `pylaia`/`laia` is not installed in the current environment;
-- its files are `weights.ckpt`, `syms.txt`, `language_model.*`, etc., not directly consumable by the TrOCR evaluation script.
-
-It remains the best external historical-HRT candidate to test if a PyLaia inference path is added.
-
-## Recommendation
-
-Do not use `dj0w/trocr-french-handwriting-v5` directly for medieval/Judicial Gallica HTR. It is trained for modern French handwriting and performed poorly on the historical CATMuS sample.
-
-Do not rely on the local 128-line fine-tuned model as a final model. It is useful as an experiment, but it does not beat `microsoft/trocr-small-handwritten` on CER.
-
-Best immediate TrOCR starting point:
-
-```text
-microsoft/trocr-small-handwritten
-```
-
-Best serious next experiment:
-
-```text
-Fine-tune TrOCR on the 56,048 French CATMuS lines,
-starting from either microsoft/trocr-small-handwritten or dj0w/trocr-french-handwriting-v5,
-and keep the checkpoint with the best validation CER.
-```
-
-Best non-TrOCR external candidate:
-
-```text
-johnlockejrr/pylaia_catmus_medieval
-```
-
-This should be evaluated separately with PyLaia before deciding whether TrOCR remains the best architecture for final HTR quality.
-
+1. garder Kraken `ManuMcFrenchV3.mlmodel` comme moteur HTR final ;
+2. garder TrOCR comme baseline ;
+3. ne pas présenter le petit fine-tuning TrOCR local comme modèle final ;
+4. utiliser CATMuS comme perspective de fine-tuning à grande échelle ;
+5. tester PyLaia CATMuS si le temps permet d'ajouter un backend propre.

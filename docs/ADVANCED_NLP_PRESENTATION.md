@@ -40,7 +40,7 @@ Repartition des entites :
 
 ### NER BIO
 
-Le schema BIO utilise :
+Le schéma BIO utilise :
 
 - `PER` : personnes ou formes capitalisees probables ;
 - `LOC` : lieux connus du corpus ;
@@ -48,7 +48,7 @@ Le schema BIO utilise :
 - `ORG` : institutions ;
 - `TITLE` : titres et fonctions.
 
-Le fichier `data/ner/bio_sample.csv` contient un echantillon annote de 224
+Le fichier `data/ner/bio_sample.csv` contient un échantillon annoté de 224
 tokens avec les classes `PER`, `LOC`, `ORG`, `DATE` et `TITLE`.
 
 Exemples :
@@ -94,9 +94,9 @@ Cette implementation est volontairement legere :
 
 - pas de fine-tuning CamemBERT-LoRA termine ;
 - POS Stanza/Pie optionnel, fallback local utilise si les modeles ne sont pas installes ;
-- F1 NER uniquement sur le scaffold de controle, pas encore sur un vrai split annote ;
+- F1 NER uniquement sur le scaffold de contrôle, pas encore sur un vrai split annoté ;
 - les relations sont des relations par regles, pas un modele supervise.
 
 Pour la soutenance, il faut presenter cette partie comme une structure
 fonctionnelle et reproductible, avec un plan clair pour passer ensuite a un
-modele annote et entraine.
+modèle annoté et entraîné.

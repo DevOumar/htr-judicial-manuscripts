@@ -45,14 +45,14 @@ python src/evaluation/validate_data_contract.py --input-dir dataset_nlp/nlp/tran
 
 Le pipeline NLP actuel est volontairement simple et reproductible :
 
-1. Validation du schema JSON.
+1. Validation du schéma JSON.
 2. EDA sur la confiance, la longueur des lignes, `needs_review` et les abreviations residuelles.
-3. Creation deterministe des splits avec hash SHA-256.
+3. Création déterministe des splits avec hash SHA-256.
 4. Normalisation Unicode NFC.
 5. Harmonisation des apostrophes.
 6. Developpement de certaines abreviations avec tilde.
 7. Tokenisation par expressions regulieres en conservant mots, nombres et ponctuation.
-8. Lemmatisation conservatrice du francais historique.
+8. Lemmatisation conservatrice du français historique.
 9. Correction post-HTR prudente avec lexique et distance de Levenshtein.
 10. Rapport d'impact avant/apres correction.
 

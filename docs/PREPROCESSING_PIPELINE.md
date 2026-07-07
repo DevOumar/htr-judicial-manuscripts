@@ -1,54 +1,42 @@
-# Preprocessing Pipeline
+# Pipeline de prétraitement d'image
 
-## Existing Implementation
+Le pipeline de prétraitement existe dans :
 
-The preprocessing pipeline already exists in `src/preprocessing/preprocess.py`.
+- `src/preprocessing/preprocess.py`
 
-It implements the MD5 image preprocessing requirements:
+Il couvre les exigences image du projet MD5 :
 
-| Requirement | Status | Location |
-| --- | --- | --- |
-| Deskew / inclination correction | Present | `preprocess_image()` using `jdeskew.get_angle()` and `rotate()` |
-| CLAHE | Present | `cv2.createCLAHE()` |
-| Sauvola adaptive binarization | Present | `skimage.filters.threshold_sauvola()` |
-| Reproducible parameters | Added/enforced | `config.yaml`, section `preprocessing` |
+| Exigence | Statut | Implémentation |
+|---|---|---|
+| Correction d'inclinaison / deskew | Présent | `preprocess_image()` avec `jdeskew.get_angle()` et `rotate()` |
+| CLAHE | Présent | amélioration locale du contraste |
+| Binarisation adaptative Sauvola | Présent | seuillage local adapté aux manuscrits |
+| Paramétrisation reproductible | Présent | paramètres dans `config.yaml` et arguments CLI |
 
-## Parameters
+## Étapes
 
-```yaml
-preprocessing:
-  deskew: true
-  clahe_clip_limit: 2.0
-  clahe_tile_grid_size: [8, 8]
-  median_blur_kernel: 3
-  sauvola_window_size: 25
-```
+1. Lecture de l'image en niveaux de gris.
+2. Estimation de l'angle d'inclinaison avec `jdeskew`.
+3. Rotation de l'image pour corriger l'inclinaison.
+4. Application de CLAHE pour améliorer le contraste local.
+5. Application de la binarisation adaptative de Sauvola.
+6. Sauvegarde de l'image prétraitée.
 
-## Algorithmic Steps
+## Justification scientifique
 
-1. Read the input image in grayscale.
-2. Estimate skew angle with `jdeskew`.
-3. Rotate the image to correct inclination.
-4. Apply CLAHE to improve local contrast.
-5. Apply median blur to reduce isolated noise.
-6. Compute a Sauvola local threshold.
-7. Export a binary image to `data/processed/`.
+La correction d'inclinaison améliore la segmentation en alignant les lignes d'écriture. CLAHE est adapté aux manuscrits historiques, car l'éclairage, l'encre et l'état du papier varient localement. La binarisation de Sauvola est une méthode standard pour les images de documents où un seuil global échoue à cause du vieillissement du papier, des taches, des ombres ou d'une densité d'encre hétérogène.
 
-## Scientific Justification
-
-Deskew improves line segmentation by aligning text baselines. CLAHE is appropriate for historical manuscripts because illumination and ink contrast vary locally across the page. Sauvola binarization is a standard adaptive thresholding method for document images where a global threshold would fail due to paper aging, stains, shadows, or heterogeneous ink density.
-
-## Usage
+## Commande
 
 ```bash
 python src/preprocessing/preprocess.py --config config.yaml --input-dir data/raw --output-dir data/processed
 ```
 
-## Before / After Examples
+## Exemples avant / après
 
-The repository contains sample raw and processed images when local sample data is present:
+Lorsque les données locales sont présentes, les images avant/après sont stockées dans :
 
-- Before: `data/raw/sample_1.png`
-- After: `data/processed/sample_1.png`
+- `data/raw/`
+- `data/processed/`
 
-For the judicial demo, preprocessing is intentionally conservative: the segmentation pipeline resizes full pages for Kraken, while this standalone module documents and validates the required MD5 image-processing chain.
+Pour la démonstration judiciaire, le prétraitement reste volontairement conservateur : le pipeline de segmentation redimensionne les pages complètes pour Kraken, tandis que ce module autonome documente et valide la chaîne de traitement d'image demandée dans le brief MD5.

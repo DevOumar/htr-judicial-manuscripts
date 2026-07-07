@@ -12,7 +12,7 @@ Date : 2026-06-18
 | Exigence NLP | Statut | Fichiers |
 | --- | --- | --- |
 | Ingerer le JSON HTR | Fait | `dataset_nlp/transcriptions.json` |
-| Valider le schema JSON avant le NLP | Fait | `schemas/transcription_schema.json`, `src/evaluation/validate_data_contract.py` |
+| Valider le schéma JSON avant le NLP | Fait | `schemas/transcription_schema.json`, `src/evaluation/validate_data_contract.py` |
 | EDA : distribution des confiances | Fait | `src/nlp/eda.py`, `outputs/nlp_eda/` |
 | EDA : taux `needs_review` | Fait | `src/nlp/eda.py`, `outputs/nlp_eda/` |
 | EDA : longueur des lignes | Fait | `src/nlp/eda.py`, `outputs/nlp_eda/` |
@@ -30,22 +30,22 @@ Date : 2026-06-18
 | Suggestions automatiques de correction | Fait | `outputs/nlp_correction/correction_suggestions.csv` |
 | Comparaison vocabulaire brut / corrige | Fait | `outputs/nlp_correction/vocabulary_comparison.md` |
 | Distance de Levenshtein | Fait | `src/nlp/correction.py`, `src/htr/metrics.py` |
-| Evaluation d'impact avant/apres correction | Prete | `outputs/nlp_correction/correction_impact_report.md` |
-| Schema BIO NER | Fait en version rule-based | `src/nlp/advanced_pipeline.py`, `dataset_nlp/advanced/advanced_annotations.json` |
+| Évaluation d'impact avant/après correction | Prête | `outputs/nlp_correction/correction_impact_report.md` |
+| Schéma BIO NER | Fait en version rule-based | `src/nlp/advanced_pipeline.py`, `dataset_nlp/advanced/advanced_annotations.json` |
 | POS tagging | Fait en version heuristique | `src/nlp/advanced_pipeline.py` |
 | Relations simples | Fait | `dataset_nlp/advanced/entity_graph.json` |
 | Graphe | Fait | `dataset_nlp/advanced/entity_graph.graphml` |
 | TEI-XML | Fait | `dataset_nlp/advanced/transcription_tei.xml` |
 | Echantillon BIO 200-300 tokens | Fait | `data/ner/bio_sample.csv` |
 | Alignement WordPiece avec `-100` | Fait | `src/nlp/ner_training.py` |
-| Evaluation type seqeval | Fait | `src/nlp/ner_training.py`, `dataset_nlp/ner/ner_scaffold_report.md` |
+| Évaluation type seqeval | Fait | `src/nlp/ner_training.py`, `dataset_nlp/ner/ner_scaffold_report.md` |
 | POS Stanza/Pie | Interface optionnelle + fallback | `src/nlp/pos_external.py` |
 | NER avec CamemBERT | Reportee | etape avancee ; il manque 200-300 tokens annotes |
 | POS avec Stanza/Pie | Reportee | etape avancee ; modele externe non installe |
 | Graphe / TEI | Reportee | etape avancee |
 | Document de conventions NLP | Fait | `CONVENTIONS_NLP.md` |
 | Tests | Fait | `tests/test_data_contract.py`, `tests/test_nlp_pipeline.py`, `tests/test_nlp_normalization.py`, `tests/test_nlp_correction.py` |
-| Dependances reproductibles | Fait | `requirements.txt`, `pyproject.toml` |
+| Dépendances reproductibles | Fait | `requirements.txt`, `pyproject.toml` |
 
 ## Resultats NLP actuels
 
@@ -70,5 +70,5 @@ Date : 2026-06-18
 Le perimetre robuste realise est donc :
 
 ```text
-JSON HTR -> validation schema -> EDA -> normalisation deterministe -> tokenisation -> lemmatisation -> correction lexicale -> JSON NLP -> splits + hash
+JSON HTR -> validation schéma -> EDA -> normalisation déterministe -> tokenisation -> lemmatisation -> correction lexicale -> JSON NLP -> splits + hash
 ```
