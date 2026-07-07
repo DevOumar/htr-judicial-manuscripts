@@ -5,6 +5,13 @@ appliqué à des registres du Parlement de Paris disponibles sur Gallica.
 
 Projet MD5 2026, module Vision par ordinateur.
 
+## Membres du groupe
+
+- Oumar Cisse
+- Hassak Arezki
+- Lina Benzemma
+- Yanis Afrite
+
 ## Objectif
 
 Produire une chaîne reproductible :
